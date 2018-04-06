@@ -102,3 +102,6 @@ ve/
 
 # mypy
 .mypy_cache/
+
+# Demo Folder
+demo/

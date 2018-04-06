@@ -55,10 +55,10 @@ const validationEdit{{ name }} = values => {
 }
 
 {% endif %}
-{% if resource.create %}
-{% for attribute in resource.create.fields %}
+{% for component, entries in resource.items() %}
+{% for attribute in entries.fields %}
 {% if attribute.choices %}
-const createchoice{{ attribute.source }} = [
+const choice{{ component|title }}{{ attribute.source|title }} = [
     {% if attribute.type == "integer" %}
     {% for choice in attribute.choices %}
     { id: {{ choice }}, name: {{ choice }} },
@@ -72,25 +72,7 @@ const createchoice{{ attribute.source }} = [
 
 {% endif %}
 {% endfor %}
-{% endif %}
-{% if resource.editW %}
-{% for attribute in resource.edit.fields %}
-{% if attribute.choices %}
-const editchoice{{ attribute.source }} = [
-    {% if attribute.type == "integer" %}
-    {% for choice in attribute.choices %}
-    { id: {{ choice }}, name: {{ choice }} },
-    {% endfor %}
-    {% else %}
-    {% for choice in attribute.choices %}
-    { id: '{{ choice }}', name: '{{ choice }}' },
-    {% endfor %}
-    {% endif%}
-];
-
-{% endif %}
 {% endfor %}
-{% endif %}
 {% for component, entries in resource.items() %}
 {% if component in supported_components and (entries.fields|length > 0 or entries.inlines) %}
 export const {{ resource.title }}{{ component|title }} = props => (
@@ -102,7 +84,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
                 <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{% if attribute.option_text %}{{ attribute.option_text }}{% endif %}"{% else %}"{% if attribute.option_text %}{{ attribute.option_text }}{% else %}id{% endif %}"{% endif %} />
             </{{ attribute.component }}>
             {% else %}
-            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
             {% endif %}
             {% endfor %}
             {% for inline in entries.inlines %}

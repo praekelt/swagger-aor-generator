@@ -68,12 +68,12 @@ def render_to_string(filename, context):
     :param context: The data to use when rendering the template
     :return: The rendered template as a string
     """
-    template_directory = "./swagger_django_generator/templates/aor"
+    template_directory = "./swagger_aor_generator/templates/aor"
     loaders = [jinja2.FileSystemLoader(template_directory)]
     try:
         import swagger_django_generator
         loaders.append(
-            jinja2.PackageLoader("swagger_django_generator", "templates/aor")
+            jinja2.PackageLoader("swagger_aor_generator", "templates/aor")
         )
     except ImportError:
         pass
@@ -218,7 +218,9 @@ class Generator(object):
             # Handle an enum possibility
             if _property.get("enum", None) is not None:
                 attribute["component"] = COMPONENT_MAPPING[suffix]["enum"]
-                attribute["choices"] = _property["enum"]
+                # Only add choices if an input
+                if suffix == "Input":
+                    attribute["choices"] = _property["enum"]
 
             if attribute.get("component", None) is not None:
                 # Add component to resource imports if not there.
@@ -486,7 +488,7 @@ class Generator(object):
 @click.option("--module-name", type=str, default=DEFAULT_MODULE,
               help="The name of the module where the generated code will be "
                    "used, e.g. myproject.some_application")
-@click.option("--rest_server_url", type=str,
+@click.option("--rest-server-url", type=str,
               default="http://localhost:8000/api/v1",
               help="Use a desired rest server URL rather than "
                    "'http://localhost:8000/api/v1'")
