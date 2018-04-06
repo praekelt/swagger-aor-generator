@@ -1,11 +1,7 @@
-import copy
-
 import click
 import inflect
 import jinja2
-import json
 import os
-import sys
 from swagger_parser import SwaggerParser
 
 words = inflect.engine()
@@ -64,20 +60,21 @@ COMPONENT_SUFFIX = {
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
 
 
-def render_to_string(backend, filename, context):
-    # type: (str, str, Dict) -> str
+def render_to_string(filename, context):
+    # type: (str, Dict) -> str
     """
     Render a template using the specified context
-    :param backend: The backend for which the template is rendered
     :param filename: The template name
     :param context: The data to use when rendering the template
     :return: The rendered template as a string
     """
-    template_directory = "./swagger_django_generator/templates/{}".format(backend)
+    template_directory = "./swagger_django_generator/templates/aor"
     loaders = [jinja2.FileSystemLoader(template_directory)]
     try:
         import swagger_django_generator
-        loaders.append(jinja2.PackageLoader("swagger_django_generator", "templates/{}".format(backend)))
+        loaders.append(
+            jinja2.PackageLoader("swagger_django_generator", "templates/aor")
+        )
     except ImportError:
         pass
 
@@ -401,7 +398,7 @@ class Generator(object):
         Generate an `App.js` file from the given specification.
         :return: str
         """
-        return render_to_string(self.backend, "App.js", {
+        return render_to_string("App.js", {
             "title": self.module_name,
             "rest_server_url": self.rest_server_url,
             "resources": self._resources,
@@ -413,7 +410,7 @@ class Generator(object):
         Generate a single resource component file.
         :return: str
         """
-        return render_to_string(self.backend, "Resource.js", {
+        return render_to_string("Resource.js", {
             "name": name,
             "resource": resource,
             "supported_components": SUPPORTED_COMPONENTS
@@ -424,7 +421,7 @@ class Generator(object):
         Generate a filter components file.
         :return: str
         """
-        return render_to_string(self.backend, "Filters.js", {
+        return render_to_string("Filters.js", {
             "resources": self._resources
         })
 
@@ -434,7 +431,7 @@ class Generator(object):
         to the generated admin.
         :return: str
         """
-        return render_to_string(self.backend, filename, {})
+        return render_to_string(filename, {})
 
     def aor_generation(self):
         click.secho("Generating App.js component file...", fg="green")
