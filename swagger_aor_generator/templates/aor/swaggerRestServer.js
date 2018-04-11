@@ -103,9 +103,14 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
     switch (type) {
         // Total required by AOR for all list operations
         case GET_LIST:
+            if (!headers.has('x-total-count')) {
+                throw new Error(
+                    'The X-Total-Count header is missing in the HTTP Response. The jsonServer REST client expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare X-Total-Count in the Access-Control-Expose-Headers header?'
+                );
+            }
             return {
                 data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
-                total: 10
+                total: parseInt(headers.get('x-total-count')),
             };
         case GET_MANY_REFERENCE:
             if (!headers.has('x-total-count')) {
@@ -115,13 +120,7 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
             }
             return {
                 data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
-                total: parseInt(
-                    headers
-                        .get('x-total-count')
-                        .split('/')
-                        .pop(),
-                    10
-                ),
+                total: parseInt(headers.get('x-total-count')),
             };
         case CREATE:
             return { data: { ...params.data, id: json.id } };

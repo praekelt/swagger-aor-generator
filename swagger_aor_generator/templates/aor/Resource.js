@@ -10,7 +10,9 @@ import {
     {% endif %}
     {% endfor %}
     DeleteButton,
+    {% if resource.edit %}
     EditButton,
+    {% endif %}
     ShowButton
 } from 'admin-on-rest';
 {% if "DateTimeInput" in resource.imports %}
@@ -81,7 +83,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% for attribute in entries.fields %}
             {% if attribute.related_component %}
             <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{% if attribute.option_text %}{{ attribute.option_text }}{% endif %}"{% else %}"{% if attribute.option_text %}{{ attribute.option_text }}{% else %}id{% endif %}"{% endif %} />
+                <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
             </{{ attribute.component }}>
             {% else %}
             <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
@@ -93,7 +95,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
                     {% for attribute in inline.fields %}
                     {% if attribute.related_component %}
                     <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                        <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{% if attribute.option_text %}{{ attribute.option_text }}{% endif %}"{% else %}"{% if attribute.option_text %}{{ attribute.option_text }}{% else %}id{% endif %}"{% endif %} />
+                        <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source="{{ attribute.option_text }}" />
                     </{{ attribute.component }}>
                     {% else %}
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
