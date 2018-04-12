@@ -177,13 +177,11 @@ class Generator(object):
                         else:
                             reference = words.plural(model.replace("_", ""))
                         attribute["reference"] = reference
-                        # Get the related model field from the specification or
-                        # attempt to guess it from the substring after the last "_".
-                        field = related_info.get("field", None)
-                        if field is None:
-                            field = name.rsplit("_", 1)[1]
-                        attribute["related_field"] = field
-                        attribute["option_text"] = related_info.get("label", None)
+                        # Get the option text to be used in the Select input from the
+                        # label field, else guess it from the current property name.
+                        guess = name.rsplit("_", 1)[1]
+                        label = related_info.get("label", None) or guess
+                        attribute["option_text"] = label
 
                 elif name.endswith("_id"):
                     related_field = True
@@ -359,7 +357,8 @@ class Generator(object):
                         # Filters are only in the query string and their type needs
                         # to be a supported component.
                         if param["in"] == "query" \
-                                and param["type"] in COMPONENT_MAPPING["Input"]:
+                                and param["type"] in COMPONENT_MAPPING["Input"]\
+                                and not param.get("x-admin-on-rest-exclude", False):
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),
