@@ -1,4 +1,11 @@
+from pip.req import parse_requirements
 from setuptools import setup, find_packages
+
+
+requirements = [
+    str(line.req) for line in parse_requirements("requirements.txt", session=False)
+]
+
 
 setup(
     name="swagger-aor-generator",
@@ -16,7 +23,7 @@ setup(
     license="BSD",
     url="",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=requirements,
     package_data={
         "templates": ["*.py"]
     },
