@@ -71,7 +71,7 @@ def render_to_string(filename, context):
     template_directory = "./swagger_aor_generator/templates/aor"
     loaders = [jinja2.FileSystemLoader(template_directory)]
     try:
-        import swagger_django_generator
+        import swagger_aor_generator
         loaders.append(
             jinja2.PackageLoader("swagger_aor_generator", "templates/aor")
         )
