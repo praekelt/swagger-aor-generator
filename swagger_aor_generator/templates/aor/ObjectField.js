@@ -14,4 +14,4 @@ const objectToText = ModifiedComponent => props => {
 }
 
 export const ObjectField = objectToText(TextField);
-/* End of Generic customFields.js */
+/* End of ObjectField.js */
