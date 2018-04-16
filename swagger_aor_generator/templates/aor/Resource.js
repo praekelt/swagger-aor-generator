@@ -21,12 +21,12 @@ import DateTimeInput from 'aor-datetime-input';
 {% if "ObjectField" in resource.imports %}
 import {
     ObjectField
-} from './CustomFields';
+} from '../fields/ObjectField';
 {% endif %}
 {% if resource.filters %}
 import {
     {{ resource.title }}Filter
-} from './Filters';
+} from '../filters/{{ resource.title }}Filter';
 {% endif %}
 
 {% if resource.create %}

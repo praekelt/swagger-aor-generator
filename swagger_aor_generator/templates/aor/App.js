@@ -17,7 +17,7 @@ import {
     {{ actions.title }}{{ action|title }},
     {% endif %}
     {% endfor %}
-} from './{{ actions.title }}';
+} from './resources/{{ actions.title }}';
 
 {% endif %}
 {% endfor %}

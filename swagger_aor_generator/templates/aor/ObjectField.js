@@ -14,4 +14,4 @@ const objectToText = ModifiedComponent => props => {
 }
 
 export const ObjectField = objectToText(TextField);
-/* End of Generic authClient.js */
+/* End of Generic customFields.js */
