@@ -110,7 +110,7 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
             }
             return {
                 data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
-                total: parseInt(headers.get('x-total-count')),
+                total: parseInt(headers.get('x-total-count'), 10),
             };
         case GET_MANY_REFERENCE:
             if (!headers.has('x-total-count')) {
@@ -120,7 +120,7 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
             }
             return {
                 data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
-                total: parseInt(headers.get('x-total-count')),
+                total: parseInt(headers.get('x-total-count'), 10),
             };
         case CREATE:
             return { data: { ...params.data, id: json.id } };

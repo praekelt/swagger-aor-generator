@@ -1,6 +1,16 @@
 # swagger-aor-generator
 Convert Swagger specifications into a simple Admin on Rest client.
 
+## Introduction
+This utility parses a Swagger specification and generates a simple Admin on Rest client implementation to integration with a given rest server.
+In particular, the following files are currently generated:
+* `App.js`, The main App file containing your Admin component,
+* Resource JS files, A resource file is generated for each resource found and placed in `resources`,
+* Filter JS files, For each resource with any filters found a filter file will be generated and placed in `filters`,
+* `swaggerRestServer.js`, a swagger rest client included with the generated files (use if needed),
+* `authClient.js`, a basic Auth Client included in the generation.
+* `ObjectField.js`, a common custom field type for object types, included if needed.
+
 
 ## Admin On Rest Client Generation
 This portion of work is to generate a basic working Admin on Rest client that can be modified for custom requirements.
@@ -330,3 +340,7 @@ List filters are all generated in and additional file `Filters.js`. In order to 
 
 Here we have one parameter named `pet_id`. This parameter is given `in` the `query`. This will generate a filter component for Pet list with a single filter option, many can be added to the parameters for more filter options.
 The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section.
+
+*NOTE* If you would like to not include a parameter as a filter, add the following to the parameter definition:
+
+`x-admin-on-rest-exlude: true`
