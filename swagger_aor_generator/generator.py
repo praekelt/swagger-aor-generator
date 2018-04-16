@@ -453,7 +453,7 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Generating resource component files...", fg="green")
+        click.secho("Generating resource component files...", fg="blue")
         resource_dir = self.output_dir + "/resources"
         if not os.path.exists(resource_dir):
             os.makedirs(resource_dir)
@@ -466,7 +466,7 @@ class Generator(object):
                     f.write(data)
                     if self.verbose:
                         print(data)
-        click.secho("Generating Filter files for resources...", fg="green")
+        click.secho("Generating Filter files for resources...", fg="blue")
         filter_dir = self.output_dir + "/filters"
         if not os.path.exists(filter_dir):
             os.makedirs(filter_dir)
@@ -480,19 +480,22 @@ class Generator(object):
                         f.write(data)
                         if self.verbose:
                             print(data)
-        click.secho("Adding basic swagger rest server file...", fg="green")
+        click.secho("Adding basic swagger rest server file...", fg="cyan")
         with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
             data = self.add_additional_file("swaggerRestServer.js")
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Adding authClient.js file...", fg="green")
-        with open(os.path.join(self.output_dir, "authClient.js"), "w") as f:
+        click.secho("Adding authClient.js file...", fg="cyan")
+        auth_dir = self.output_dir + "/auth"
+        if not os.path.exists(auth_dir):
+            os.makedirs(auth_dir)
+        with open(os.path.join(auth_dir, "authClient.js"), "w") as f:
             data = self.add_additional_file("authClient.js")
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Adding ObjectField.js file...", fg="green")
+        click.secho("Adding ObjectField.js file...", fg="cyan")
         fields_dir = self.output_dir + "/fields"
         if not os.path.exists(fields_dir):
             os.makedirs(fields_dir)

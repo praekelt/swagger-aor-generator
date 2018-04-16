@@ -7,7 +7,7 @@ import { cyan500, cyan300 } from 'material-ui/styles/colors';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
-import authClient from './authClient';
+import authClient from './auth/authClient';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
