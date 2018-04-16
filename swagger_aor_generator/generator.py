@@ -346,6 +346,7 @@ class Generator(object):
                         self._resources[name]["imports"].append("List")
                         self._resources[name]["imports"].append("Datagrid")
                     filters = []
+                    filter_imports = []
                     # Get all method filters for the list component.
                     for parameter in io.get("parameters", []):
                         # If the parameter is a reference, get the actual parameter.
@@ -359,12 +360,19 @@ class Generator(object):
                         if param["in"] == "query" \
                                 and param["type"] in COMPONENT_MAPPING["Input"]\
                                 and not param.get("x-admin-on-rest-exclude", False):
+                            component = COMPONENT_MAPPING["Input"][param["type"]]
+                            if component not in filter_imports:
+                                filter_imports.append(component)
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),
-                                "component": COMPONENT_MAPPING["Input"][param["type"]]
+                                "component": component
                             })
-                    self._resources[name]["filters"] = filters
+                    if filters:
+                        self._resources[name]["filters"] = {
+                            "filters": filters,
+                            "imports": filter_imports
+                        }
                 elif _create or _update:
                     for parameter in io.get("parameters", []):
                         # If the parameter is a reference, get the actual parameter.
@@ -406,7 +414,8 @@ class Generator(object):
             "supported_components": SUPPORTED_COMPONENTS
         })
 
-    def generate_resource_js(self, name, resource):
+    @staticmethod
+    def generate_resource_js(name, resource):
         """
         Generate a single resource component file.
         :return: str
@@ -417,16 +426,19 @@ class Generator(object):
             "supported_components": SUPPORTED_COMPONENTS
         })
 
-    def generate_filters_js(self):
+    @staticmethod
+    def generate_filter_js(title, filters):
         """
         Generate a filter components file.
         :return: str
         """
         return render_to_string("Filters.js", {
-            "resources": self._resources
+            "title": title,
+            "filters": filters
         })
 
-    def add_additional_file(self, filename):
+    @staticmethod
+    def add_additional_file(filename):
         """
         Add an additional file, that does not require context,
         to the generated admin.
@@ -442,21 +454,32 @@ class Generator(object):
             if self.verbose:
                 print(data)
         click.secho("Generating resource component files...", fg="green")
+        resource_dir = self.output_dir + "/resources"
+        if not os.path.exists(resource_dir):
+            os.makedirs(resource_dir)
         for name, resource in self._resources.items():
             title = resource.get("title", None)
             if title:
                 click.secho("Generating {}.js file...".format(title), fg="green")
-                with open(os.path.join(self.output_dir, "{}.js".format(title)), "w") as f:
+                with open(os.path.join(resource_dir, "{}.js".format(title)), "w") as f:
                     data = self.generate_resource_js(title, resource)
                     f.write(data)
                     if self.verbose:
                         print(data)
-        click.secho("Generating Filters.js file...", fg="green")
-        with open(os.path.join(self.output_dir, "Filters.js"), "w") as f:
-            data = self.generate_filters_js()
-            f.write(data)
-            if self.verbose:
-                print(data)
+        click.secho("Generating Filter files for resources...", fg="green")
+        filter_dir = self.output_dir + "/filters"
+        if not os.path.exists(filter_dir):
+            os.makedirs(filter_dir)
+        for name, resource in self._resources.items():
+            if resource.get("filters", None) is not None:
+                title = resource.get("title", None)
+                if title:
+                    click.secho("Generating {}Filter.js file...".format(title), fg="green")
+                    with open(os.path.join(filter_dir, "{}Filter.js".format(title)), "w") as f:
+                        data = self.generate_filter_js(title, resource["filters"])
+                        f.write(data)
+                        if self.verbose:
+                            print(data)
         click.secho("Adding basic swagger rest server file...", fg="green")
         with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
             data = self.add_additional_file("swaggerRestServer.js")
@@ -469,9 +492,12 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Adding CustomFields.js file...", fg="green")
-        with open(os.path.join(self.output_dir, "CustomFields.js"), "w") as f:
-            data = self.add_additional_file("CustomFields.js")
+        click.secho("Adding ObjectField.js file...", fg="green")
+        fields_dir = self.output_dir + "/fields"
+        if not os.path.exists(fields_dir):
+            os.makedirs(fields_dir)
+        with open(os.path.join(fields_dir, "ObjectField.js"), "w") as f:
+            data = self.add_additional_file("ObjectField.js")
             f.write(data)
             if self.verbose:
                 print(data)

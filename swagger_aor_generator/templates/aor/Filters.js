@@ -4,22 +4,17 @@
 **/
 import React from 'react';
 import {
-    Filter,
-    TextInput,
-    NumberInput,
-    BooleanInput
+    {% for import in filters.imports %}
+    {{ import }},
+    {% endfor %}
+    Filter
 } from 'admin-on-rest';
 
-{% for name, resource in resources.items() %}
-{% if resource.filters %}
-export const {{ resource.title }}Filter = props => (
+export const {{ title }}Filter = props => (
     <Filter {...props}>
-        {% for filter in resource.filters %}
+        {% for filter in filters.filters %}
         <{{ filter.component }} label="{{ filter.label }}" source="{{ filter.source }}" />
         {% endfor %}
     </Filter>
 );
-
-{% endif %}
-{% endfor %}
 /** End of Generated Code **/
