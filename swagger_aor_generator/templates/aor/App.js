@@ -8,6 +8,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 import authClient from './auth/authClient';
+import Menu from './Menu';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
@@ -24,7 +25,7 @@ import {
 
 
 const App = () => (
-    <Admin title="{{ title }}" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
+    <Admin title="{{ title }}" menu={Menu} theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
     {% for name, actions in resources.items() %}
     {% if actions.has_methods %}
         <Resource

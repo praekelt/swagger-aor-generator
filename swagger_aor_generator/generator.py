@@ -402,40 +402,15 @@ class Generator(object):
                         definition=definition
                     )
 
-    def generate_app_js(self):
-        """
-        Generate an `App.js` file from the given specification.
-        :return: str
-        """
-        return render_to_string("App.js", {
-            "title": self.module_name,
-            "rest_server_url": self.rest_server_url,
-            "resources": self._resources,
-            "supported_components": SUPPORTED_COMPONENTS
-        })
-
     @staticmethod
-    def generate_resource_js(name, resource):
+    def generate_js_file(filename, context):
         """
-        Generate a single resource component file.
+        Generate a js file from the given specification.
+        :param filename: The name of the template file.
+        :param context: Context to be passed.
         :return: str
         """
-        return render_to_string("Resource.js", {
-            "name": name,
-            "resource": resource,
-            "supported_components": SUPPORTED_COMPONENTS
-        })
-
-    @staticmethod
-    def generate_filter_js(title, filters):
-        """
-        Generate a filter components file.
-        :return: str
-        """
-        return render_to_string("Filters.js", {
-            "title": title,
-            "filters": filters
-        })
+        return render_to_string(filename, context)
 
     @staticmethod
     def add_additional_file(filename):
@@ -449,7 +424,24 @@ class Generator(object):
     def aor_generation(self):
         click.secho("Generating App.js component file...", fg="green")
         with open(os.path.join(self.output_dir, "App.js"), "w") as f:
-            data = self.generate_app_js()
+            data = self.generate_js_file(
+                filename="App.js",
+                context={
+                    "title": self.module_name,
+                    "rest_server_url": self.rest_server_url,
+                    "resources": self._resources,
+                    "supported_components": SUPPORTED_COMPONENTS
+                })
+            f.write(data)
+            if self.verbose:
+                print(data)
+        click.secho("Generating Menu.js component file...", fg="green")
+        with open(os.path.join(self.output_dir, "Menu.js"), "w") as f:
+            data = self.generate_js_file(
+                filename="Menu.js",
+                context={
+                    "resources": self._resources
+                })
             f.write(data)
             if self.verbose:
                 print(data)
@@ -462,7 +454,14 @@ class Generator(object):
             if title:
                 click.secho("Generating {}.js file...".format(title), fg="green")
                 with open(os.path.join(resource_dir, "{}.js".format(title)), "w") as f:
-                    data = self.generate_resource_js(title, resource)
+                    data = self.generate_js_file(
+                        filename="Resource.js",
+                        context={
+                            "name": title,
+                            "resource": resource,
+                            "supported_components": SUPPORTED_COMPONENTS
+                        }
+                    )
                     f.write(data)
                     if self.verbose:
                         print(data)
@@ -476,7 +475,12 @@ class Generator(object):
                 if title:
                     click.secho("Generating {}Filter.js file...".format(title), fg="green")
                     with open(os.path.join(filter_dir, "{}Filter.js".format(title)), "w") as f:
-                        data = self.generate_filter_js(title, resource["filters"])
+                        data = self.generate_js_file(
+                            filename="Filters.js",
+                            context={
+                                "title": title,
+                                "filters": resource["filters"]
+                            })
                         f.write(data)
                         if self.verbose:
                             print(data)
