@@ -9,7 +9,9 @@ import { MenuItemLink, getResources } from 'admin-on-rest';
 const Menu = ({ resources, onMenuTap, logout }) => (
     <div>
         {% for name, actions in resources.items() %}
+        {% if actions.has_methods %}
         <MenuItemLink to="/{{ actions.path }}" primaryText="{{ actions.path|title }}" onClick={onMenuTap} />
+        {% endif %}
         {% endfor %}
         {logout}
     </div>
