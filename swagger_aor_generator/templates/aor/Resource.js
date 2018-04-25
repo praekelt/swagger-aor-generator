@@ -79,7 +79,7 @@ const choice{{ component|title }}{{ attribute.source|title }} = [
 {% if component in supported_components and (entries.fields|length > 0 or entries.inlines) %}
 export const {{ resource.title }}{{ component|title }} = props => (
     <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}"{% if component == "list" and resource.filters %} filters={<{{ resource.title }}Filter />}{% endif %}>
-        <{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validation{{ component|title }}{{ name }}}{% endif %}>
+        <{% if component == "list" %}Datagrid bodyOptions={ { showRowHover: true } }{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validation{{ component|title }}{{ name }}}{% endif %}>
             {% for attribute in entries.fields %}
             {% if attribute.related_component %}
             <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
@@ -91,7 +91,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endfor %}
             {% for inline in entries.inlines %}
             <{{ inline.component }} label="{{ inline.label }}" reference="{{ inline.reference }}" target="{{ inline.target }}">
-                <Datagrid>
+                <Datagrid bodyOptions={ { showRowHover: true } }>
                     {% for attribute in inline.fields %}
                     {% if attribute.related_component %}
                     <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
