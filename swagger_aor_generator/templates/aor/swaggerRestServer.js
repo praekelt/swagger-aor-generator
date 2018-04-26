@@ -1,7 +1,7 @@
 /**
  * Generated swaggerRestServer.js code. Edit at own risk.
  * When regenerated the changes will be lost.
-**/
+ **/
 import { stringify } from 'query-string';
 import { fetchUtils } from 'admin-on-rest';
 
@@ -68,7 +68,7 @@ export const convertRESTRequestToHTTP = ({
             break;
         case GET_MANY: {
             const query = {
-                filter: JSON.stringify({ id: params.ids }),
+                filter: JSON.stringify({ id: params.ids })
             };
             url = `${apiUrl}/${resource}?${stringify(query)}`;
             break;
@@ -103,6 +103,8 @@ export const convertRESTRequestToHTTP = ({
 const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
     const { headers, json } = response;
     let keys = COMPOSITE_KEY_RESOURSES[resource];
+    let pk = PK_MAPPING[resource];
+    let data = [];
 
     switch (type) {
         // Total required by AOR for all list operations
