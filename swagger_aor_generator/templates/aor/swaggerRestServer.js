@@ -17,6 +17,18 @@ const COMPOSITE_KEY_RESOURSES = {}
 
 const PK_MAPPING = {};
 
+const FILTER_LENGTHS = {
+    {% for name, resource in resources.items() %}
+    {% if resource.filter_lengths %}
+    {{ resource.path }}: {
+        {% for filter, length in resource.filter_lengths.items() %}
+        {{ filter }}: {{ length }},
+        {% endfor %}
+    },
+    {% endif %}
+    {% endfor %}
+};
+
 /**
  * @param {String} apiUrl The base API url
  * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
@@ -55,8 +67,19 @@ export const convertRESTRequestToHTTP = ({
             }
 
             if (params.filter) {
+                let filterLengths = FILTER_LENGTHS[resource];
                 Object.keys(params.filter).forEach(key => {
-                    query[key] = params.filter[key];
+                    let filter =
+                        params.filter[key] instanceof Object
+                            ? JSON.stringify(params.filter[key])
+                            : params.filter[key];
+                    let minLength =
+                        filterLengths && filterLengths[key]
+                            ? filterLengths[key]
+                            : 0;
+                    if (minLength === 0 || filter.length >= minLength) {
+                        query[key] = filter;
+                    }
                 });
             }
 

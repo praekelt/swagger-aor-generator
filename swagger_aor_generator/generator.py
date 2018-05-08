@@ -27,26 +27,36 @@ BACKEND_CHOICES = ["aor"]
 # Component Mapping for swagger types to AOR components
 COMPONENT_MAPPING = {
     "Field": {
-        "integer": "NumberField",
-        "string": "TextField",
-        "object": "ObjectField",
         "boolean": "BooleanField",
-        "date-time": "DateTimeField",
         "date": "DateField",
+        "date-time": "DateTimeField",
         "enum": "SelectField",
+        "integer": "NumberField",
+        "many": "ReferenceManyField",
+        "object": "ObjectField",
         "relation": "ReferenceField",
-        "many": "ReferenceManyField"
+        "string": "TextField"
     },
     "Input": {
-        "integer": "NumberInput",
-        "string": "TextInput",
-        "object": "LongTextInput",
         "boolean": "BooleanInput",
-        "date-time": "DateTimeInput",
         "date": "DateInput",
+        "date-range": "DateRangeInput",
+        "date-time": "DateTimeInput",
+        "date-time-range": "DateRangeInput",
         "enum": "SelectInput",
+        "integer": "NumberInput",
+        "many": "ReferenceManyField",
+        "object": "LongTextInput",
         "relation": "ReferenceInput",
-        "many": "ReferenceManyField"
+        "string": "TextInput"
+    }
+}
+
+PROPS_MAPPING = {
+    "Input": {
+        "date-time-range": {
+            "time": None
+        }
     }
 }
 
@@ -58,6 +68,12 @@ COMPONENT_SUFFIX = {
 }
 
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
+
+ADDITIONAL_FILES = {
+    "auth": ["authClient.js"],
+    "field": ["ObjectField.js"],
+    "input": ["DateRangeInput.js"]
+}
 
 
 def render_to_string(filename, context):
@@ -316,7 +332,8 @@ class Generator(object):
                     self._resources[name] = {
                         "path": path[1:].split("/")[0],
                         "imports": [],
-                        "has_methods": False
+                        "has_methods": False,
+                        "filter_lengths": {}
                     }
 
                 definition = None
@@ -360,13 +377,32 @@ class Generator(object):
                         if param["in"] == "query" \
                                 and param["type"] in COMPONENT_MAPPING["Input"]\
                                 and not param.get("x-admin-on-rest-exclude", False):
-                            component = COMPONENT_MAPPING["Input"][param["type"]]
+                            # Get component based on the explicit declaration or just the type.
+                            declared_input = param.get("x-aor-filter", None)
+                            _type = param["type"]
+                            if declared_input:
+                                _range = "-range" if declared_input.get("range", False) else ""
+                                _type = "{_type}{_range}".format(
+                                    _type=declared_input["format"],
+                                    _range=_range
+                                )
+                            component = COMPONENT_MAPPING["Input"][_type]
+                            # Add props if needed.
+                            props = None
+                            if _type in PROPS_MAPPING["Input"]:
+                                props = PROPS_MAPPING["Input"][_type]
+                            # Add component to filter imports if not there.
                             if component not in filter_imports:
                                 filter_imports.append(component)
+                            source = param["name"]
+                            _min = param.get("minLength")
+                            if _min:
+                                self._resources[name]["filter_lengths"][source] = _min
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),
-                                "component": component
+                                "component": component,
+                                "props": props
                             })
                     if filters:
                         self._resources[name]["filters"] = {
@@ -486,28 +522,27 @@ class Generator(object):
                             print(data)
         click.secho("Adding basic swagger rest server file...", fg="cyan")
         with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
-            data = self.add_additional_file("swaggerRestServer.js")
+            data = self.generate_js_file(
+                filename="swaggerRestServer.js",
+                context={
+                    "resources": self._resources
+                }
+            )
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Adding authClient.js file...", fg="cyan")
-        auth_dir = self.output_dir + "/auth"
-        if not os.path.exists(auth_dir):
-            os.makedirs(auth_dir)
-        with open(os.path.join(auth_dir, "authClient.js"), "w") as f:
-            data = self.add_additional_file("authClient.js")
-            f.write(data)
-            if self.verbose:
-                print(data)
-        click.secho("Adding ObjectField.js file...", fg="cyan")
-        fields_dir = self.output_dir + "/fields"
-        if not os.path.exists(fields_dir):
-            os.makedirs(fields_dir)
-        with open(os.path.join(fields_dir, "ObjectField.js"), "w") as f:
-            data = self.add_additional_file("ObjectField.js")
-            f.write(data)
-            if self.verbose:
-                print(data)
+        # Generate additional Files
+        for _dir, files in ADDITIONAL_FILES.items():
+            path_dir = "{}/{}".format(self.output_dir, _dir)
+            if not os.path.exists(path_dir):
+                os.makedirs(path_dir)
+            for file in files:
+                click.secho("Adding {} file...".format(file), fg="cyan")
+                with open(os.path.join(path_dir, file), "w") as f:
+                    data = self.add_additional_file(file)
+                    f.write(data)
+                    if self.verbose:
+                        print(data)
 
 
 @click.command()
