@@ -67,6 +67,8 @@ COMPONENT_SUFFIX = {
     "edit": "Input"
 }
 
+OPERATION_SUFFIXES = ["list", "read", "create", "update"]
+
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
 
 ADDITIONAL_FILES = {
@@ -321,12 +323,18 @@ class Generator(object):
                 # Check if this is not a valid path method then skip it.
                 if verb == "parameters":
                     continue
-                elif not io.get("operationId", None):
-                    continue
+                else:
+                    operation_id = io.get("operationId", "")
+                    valid_operation = any([
+                        operation in operation_id
+                        for operation in OPERATION_SUFFIXES
+                    ])
+                    if operation_id and not valid_operation:
+                        continue
 
                 # Get resource name and path and add it to the list
                 # for the first occurring instance of the resource
-                operation_id = io["operationId"]
+
                 name = operation_id.split("_")[0]
                 if name not in self._resources:
                     self._resources[name] = {
@@ -395,9 +403,13 @@ class Generator(object):
                             if component not in filter_imports:
                                 filter_imports.append(component)
                             source = param["name"]
-                            _min = param.get("minLength")
-                            if _min:
-                                self._resources[name]["filter_lengths"][source] = _min
+                            _min = param.get("minLength", None)
+                            _max = param.get("maxLength", None)
+                            if _min or _max:
+                                self._resources[name]["filter_lengths"][source] = {
+                                    "min_length": _min,
+                                    "max_length": _max
+                                }
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),

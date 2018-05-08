@@ -21,8 +21,15 @@ const FILTER_LENGTHS = {
     {% for name, resource in resources.items() %}
     {% if resource.filter_lengths %}
     {{ resource.path }}: {
-        {% for filter, length in resource.filter_lengths.items() %}
-        {{ filter }}: {{ length }},
+        {% for filter, lengths in resource.filter_lengths.items() %}
+        {{ filter }}: {
+            {% if lengths.min_length %}
+            min: {{ lengths.min_length }},
+            {% endif %}
+            {% if lengths.max_length %}
+            max: {{ lengths.max_length }}
+            {% endif %}
+        },
         {% endfor %}
     },
     {% endif %}
