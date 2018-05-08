@@ -80,11 +80,17 @@ export const convertRESTRequestToHTTP = ({
                         params.filter[key] instanceof Object
                             ? JSON.stringify(params.filter[key])
                             : params.filter[key];
-                    let minLength =
-                        filterLengths && filterLengths[key]
-                            ? filterLengths[key]
-                            : 0;
-                    if (minLength === 0 || filter.length >= minLength) {
+                    if (filterLengths && filterLengths[key]) {
+                        const minLength = filterLengths[key].min;
+                        const maxLength = filterLengths[key].max;
+                        if (!minLength || filter.length >= minLength) {
+                            filter =
+                                maxLength && filter.length > maxLength
+                                    ? filter.slice(0, maxLength)
+                                    : filter;
+                            query[key] = filter;
+                        }
+                    } else {
                         query[key] = filter;
                     }
                 });
