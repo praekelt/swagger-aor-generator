@@ -18,7 +18,7 @@ import DateRangeInput from '../inputs/DateRangeInput';
 export const {{ title }}Filter = props => (
     <Filter {...props}>
         {% for filter in filters.filters %}
-        <{{ filter.component }} label="{{ filter.label }}" source="{{ filter.source }}" {% if filter.props %}{% for name, value in filter.props.items() %}{{ name }}{% if value %}={{ value }}{% endif %} {% endfor %}{% endif %} />
+        <{{ filter.component }} label="{{ filter.label }}" source="{{ filter.source }}"{% if filter.props %}{% for name, value in filter.props.items() %}{{ name }}{% if value %}={{ value }}{% endif %} {% endfor %}{% endif %} />
         {% endfor %}
     </Filter>
 );
