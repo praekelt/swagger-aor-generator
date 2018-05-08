@@ -17,6 +17,30 @@ This portion of work is to generate a basic working Admin on Rest client that ca
 In order for the generation to behave as desired, the swagger specification is required to follow a certain configuration. Note, this generated code
 comes along with a generic swagger rest server and authentication implementation.
 
+## Include in your project
+
+Include in your requirements file for pip within a Virtual Environment with Python 3.6 (to guarantee order of generation):
+
+`-e git+https://github.com/praekelt/swagger-aor-generator.git@master#egg=swagger-aor-generator`
+
+Pip install your requirements and the generator will be in your project Virtual Environment.
+
+To run the generator now you can run the command:
+
+```
+./{ve}/bin/python {ve}/src/swagger-aor-generator/swagger_aor_generator/generator.py {swagger_spec} --output-dir={output_dir} --module-name="{module_name}" --rest-server-url="{rest_server_url}"
+```
+
+Replace all instances of `{}` variables with your desired setup. Here are each on of their purposes.
+
+| Name            | Description                                             |
+| ----------------| --------------------------------------------------------|
+| ve              | Your virtual environment directory.                     |
+| swagger_spec    | The path to your swagger specification (JSON/YAML).     |
+| output_dir      | The output directory to generate into.                  |
+| module_name     | What you want the title of your admin to be.            | 
+| rest_server_url | The url which points to your rest server for the admin. |
+
 ### Path Configuration
 Here is a configuration of paths for a single model to be implemented on the Admin on Rest interface.
 
@@ -209,17 +233,21 @@ Each property will be catered for in the generated Admin on Rest client. The pro
 
 *NOTE: Date-time formats will require an additional npm package `aor-datetime-input` for DateTimeInput components, so add it to your project if necessary.*
 
-| Type/Format   | Field Component  | Input Component  |
-| ------------- |------------------| -----------------|
-| string        | TextField        | TextInput        |
-| integer       | NumberField      | NumberInput      |
-| boolean       | BooleanField     | BooleanInput     |
-| date          | DateField        | DateInput        |
-| date-time     | DateField        | DateTimeInput    |
-| enum          | SelectField      | SelectInput      |
-| object*       | ObjectField*     | LongTextInput*   |
+| Type/Format     | Field Component  | Input Component  |
+| ----------------| -----------------| -----------------|
+| string          | TextField        | TextInput        |
+| integer         | NumberField      | NumberInput      |
+| boolean         | BooleanField     | BooleanInput     |
+| date            | DateField        | DateInput        |
+| date-time       | DateField        | DateTimeInput    |
+| enum            | SelectField      | SelectInput      |
+| object*         | ObjectField*     | LongTextInput*   |
+| date-range      | NONE             | DateRangeInput** |
+| date-time-range | NONE             | DateRangeInput** |
 
 * Object types use a Custom ObjectField included in the generation of the Admin on Rest Client. For their input a LongTextInput is utilized with `parse` and `format` props that handle the sending and presentation of the field data.
+
+** DateRangeInputs are currently only tested and working for filter use and have no Field representation. See Filter section below for more detail.
 
 ### Foriegn Key relationships
 
@@ -318,6 +346,22 @@ List filters are all generated in and additional file `Filters.js`. In order to 
       "name": "pet_id",
       "required": false,
       "type": "integer"
+    },
+    {
+      "description": "A name for a given pet.",
+      "in": "query",
+      "name": "name",
+      "required": false,
+      "type": "string",
+      "minLength": 3
+    },
+    {
+      "description": "A date range filter for pet date of birth",
+      "in": "query",
+      "name": "date_of_birth",
+      "required": false,
+      "type": "string",
+      "x-aor-filter-input": "date-range"
     }
   ],
   "produces": [
@@ -339,8 +383,26 @@ List filters are all generated in and additional file `Filters.js`. In order to 
 ```
 
 Here we have one parameter named `pet_id`. This parameter is given `in` the `query`. This will generate a filter component for Pet list with a single filter option, many can be added to the parameters for more filter options.
-The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section.
+The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `swaggerRestServer.js` to only query when the minimum length of input has been typed in that filter.
+
+### Different Filter Inputs
+
+One can specify the use of a custom input component with the extra attribute `x-aor-filter-input`. Here are the current custom inputs included and the value of `x-aor-filter-input` required for them.
+
+| x-aor-filter-input | Input Component  |
+| -------------------| -----------------|
+| date-range         | DateRangeInput   |
+| *date-time-range   | DateRangeInput   |
+
+* This uses the same input component, however it will be given additional props to use date-time inputs for the from and to range inputs rather than the standard date inputs.
 
 *NOTE* If you would like to not include a parameter as a filter, add the following to the parameter definition:
 
 `x-admin-on-rest-exlude: true`
+
+
+## TODOS
+
+* Fix up templates folder/file organization, thus resulting in some minor code changes. (Neatening up).
+* Update swaggerRestServer.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
+* Template render neatening always needs work...

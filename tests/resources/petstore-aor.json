@@ -26,6 +26,22 @@
       "required": true,
       "type": "integer"
     },
+    "optional_pet_name": {
+      "description": "A name for a given pet.",
+      "in": "query",
+      "name": "name",
+      "required": false,
+      "type": "string",
+      "minLength": 3
+    },
+    "optional_pet_date_of_birth": {
+      "description": "A date range filter for pet date of birth",
+      "in": "query",
+      "name": "date_of_birth",
+      "required": false,
+      "type": "string",
+      "x-aor-filter-input": "date-range"
+    },
     "optional_user_id": {
       "description": "An Optional Filter by user_id.",
       "in": "query",
@@ -62,6 +78,12 @@
         "parameters": [
           {
             "$ref": "#/parameters/optional_pet_id"
+          },
+          {
+            "$ref": "#/parameters/optional_pet_name"
+          },
+          {
+            "$ref": "#/parameters/optional_pet_date_of_birth"
           },
           {
             "name": "pet_ids",
