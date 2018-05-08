@@ -242,12 +242,8 @@ Each property will be catered for in the generated Admin on Rest client. The pro
 | date-time       | DateField        | DateTimeInput    |
 | enum            | SelectField      | SelectInput      |
 | object*         | ObjectField*     | LongTextInput*   |
-| date-range      | NONE             | DateRangeInput** |
-| date-time-range | NONE             | DateRangeInput** |
 
 * Object types use a Custom ObjectField included in the generation of the Admin on Rest Client. For their input a LongTextInput is utilized with `parse` and `format` props that handle the sending and presentation of the field data.
-
-** DateRangeInputs are currently only tested and working for filter use and have no Field representation. See Filter section below for more detail.
 
 ### Foriegn Key relationships
 
@@ -361,7 +357,10 @@ List filters are all generated in and additional file `Filters.js`. In order to 
       "name": "date_of_birth",
       "required": false,
       "type": "string",
-      "x-aor-filter-input": "date-range"
+      "x-aor-filter": {
+        "format": "date",
+        "range": true
+      }
     }
   ],
   "produces": [
@@ -387,12 +386,17 @@ The filter `type`/`format` is important for the component to be used and maps to
 
 ### Different Filter Inputs
 
-One can specify the use of a custom input component with the extra attribute `x-aor-filter-input`. Here are the current custom inputs included and the value of `x-aor-filter-input` required for them.
+One can specify the use of a custom input component with the extra attribute `x-aor-filter`. Here is an example of an `x-aor-filter`:
 
-| x-aor-filter-input | Input Component  |
-| -------------------| -----------------|
-| date-range         | DateRangeInput   |
-| *date-time-range   | DateRangeInput   |
+```
+"x-aor-filter": {
+  "format": "date",
+  "range": true
+}
+```
+
+The format attribute will override the type in the parameter with the type you would like to use and you can specify if you would like it to be a range based input. PLEASE NOTE only types of `date` and `date-time` have available custom range inputs, so specifying range for another type with fail.
+The format attribute is REQUIRED however range defaults to false.
 
 * This uses the same input component, however it will be given additional props to use date-time inputs for the from and to range inputs rather than the standard date inputs.
 
@@ -401,8 +405,9 @@ One can specify the use of a custom input component with the extra attribute `x-
 `x-admin-on-rest-exlude: true`
 
 
-## TODOS
+## TODOS (What would be cool as well)
 
 * Fix up templates folder/file organization, thus resulting in some minor code changes. (Neatening up).
 * Update swaggerRestServer.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
+* Add more range based filter types (like integer/number range).
 * Template render neatening always needs work...

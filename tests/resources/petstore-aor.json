@@ -40,7 +40,10 @@
       "name": "date_of_birth",
       "required": false,
       "type": "string",
-      "x-aor-filter-input": "date-range"
+      "x-aor-filter": {
+        "format": "date",
+        "range": true
+      }
     },
     "optional_user_id": {
       "description": "An Optional Filter by user_id.",

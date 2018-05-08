@@ -378,14 +378,19 @@ class Generator(object):
                                 and param["type"] in COMPONENT_MAPPING["Input"]\
                                 and not param.get("x-admin-on-rest-exclude", False):
                             # Get component based on the explicit declaration or just the type.
-                            declared_input = param.get("x-aor-filter-input", None)
-                            component = COMPONENT_MAPPING["Input"][
-                                declared_input or param["type"]
-                            ]
+                            declared_input = param.get("x-aor-filter", None)
+                            _type = param["type"]
+                            if declared_input:
+                                _range = "-range" if declared_input.get("range", False) else ""
+                                _type = "{_type}{_range}".format(
+                                    _type=declared_input["format"],
+                                    _range=_range
+                                )
+                            component = COMPONENT_MAPPING["Input"][_type]
                             # Add props if needed.
                             props = None
-                            if declared_input in PROPS_MAPPING["Input"]:
-                                props = PROPS_MAPPING["Input"][declared_input]
+                            if _type in PROPS_MAPPING["Input"]:
+                                props = PROPS_MAPPING["Input"][_type]
                             # Add component to filter imports if not there.
                             if component not in filter_imports:
                                 filter_imports.append(component)
