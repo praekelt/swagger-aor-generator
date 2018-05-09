@@ -7,19 +7,33 @@ import { connect } from 'react-redux';
 import { MenuItemLink, getResources } from 'admin-on-rest';
 import ListIcon from 'material-ui/svg-icons/action/view-list';
 
+const ICONS = {
+    {% for name, actions in resources.items() %}
+    {% if actions.has_methods %}
+    {{ actions.path }}: <ListIcon />,
+    {% endif %}
+    {% endfor %}
+}
+
 const Menu = ({ resources, onMenuTap, logout }) => (
     <div>
-        {% for name, actions in resources.items() %}
-        {% if actions.has_methods %}
-        <MenuItemLink to="/{{ actions.path }}" primaryText="{{ actions.path|title }}" onClick={onMenuTap} leftIcon={<ListIcon />} />
-        {% endif %}
-        {% endfor %}
+        {resources
+            ? resources.map(resource => (
+                    <MenuItemLink
+                        key={resource.name}
+                        to={`/${resource.name}`}
+                        primaryText={`${titleCase(resource.name)}`}
+                        onClick={onMenuTap}
+                        leftIcon={ICONS[resource.name]}
+                    />
+                ))
+            : ''}
         {logout}
     </div>
 );
 
 const mapStateToProps = state => ({
-    resources: getResources(state),
+    resources: getResources(state)
 })
 export default connect(mapStateToProps)(Menu);
 /** End of Generated Menu.js Code **/

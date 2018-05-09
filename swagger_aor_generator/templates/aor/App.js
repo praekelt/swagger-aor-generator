@@ -8,6 +8,10 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 import authClient from './auth/authClient';
+{% if add_permissions %}
+import { PERMISSIONS } from './auth/authPermissions';
+import { allowAccess } from './utils';
+{% endif %}
 import Menu from './Menu';
 
 {% for name, actions in resources.items() %}
@@ -23,9 +27,25 @@ import {
 {% endif %}
 {% endfor %}
 
-
 const App = () => (
     <Admin title="{{ title }}" menu={Menu} theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
+    {% if add_permissions %}
+        {permissions => [
+            {% for name, actions in resources.items() %}
+            {% if actions.has_methods %}
+            allowAccess(permissions, PERMISSIONS.{{ actions.path }}.list) 
+                ? <Resource
+                      name="{{ actions.path }}"
+                      {% for action, details in actions.items() %}
+                      {% if action in supported_components %}
+                      {{ action }}={allowAccess(permissions, PERMISSIONS.{{ actions.path }}.{{ action }}) ? {{ actions.title }}{{ action|title }} : null}
+                      {% endif %}
+                      {% endfor %} 
+                /> : null,
+            {% endif %}
+            {% endfor %}
+        ]}
+    {% else %}
     {% for name, actions in resources.items() %}
     {% if actions.has_methods %}
         <Resource
@@ -39,6 +59,7 @@ const App = () => (
         />
     {% endif %}
     {% endfor %}
+    {% endif %}
     </Admin>
 )
 
