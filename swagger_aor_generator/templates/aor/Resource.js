@@ -29,8 +29,7 @@ import {
 } from '../filters/{{ resource.title }}Filter';
 {% endif %}
 {% if add_permissions %}
-import { PERMISSIONS } from '../auth/authPermissions';
-import { allowAccess } from '../utils';
+import permissionsStore from '../auth/PermissionsStore';
 {% endif %}
 
 {% if resource.create %}
@@ -110,12 +109,12 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endfor %}
             {% if component == "list" %}
             {% if resource.edit %}
-            {allowAccess(permissions, PERMISSIONS.{{ resource.path }}.edit) ? <EditButton /> : null}
+            {permissionsStore('{{ resource.path }}', 'edit') ? <EditButton /> : null}
             {% endif %}
             {% if resource.show %}
             <ShowButton />
             {% endif %}
-            {allowAccess(permissions, PERMISSIONS.{{ resource.path }}.delete) ? <DeleteButton />: null}
+            {permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
     </{{ component|title }}>

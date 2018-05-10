@@ -14,11 +14,4 @@ export const titleCase = string => {
         .join(' ');
 };
 
-{% if add_permissions %}
-// Check if access can be granted with the given and required permissions.
-export const allowAccess = (permissions, required) => {
-
-};
-{% endif %}
-
 /** End of Generated Code **/

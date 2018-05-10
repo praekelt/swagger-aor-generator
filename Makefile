@@ -19,5 +19,10 @@ demo:
 	mkdir demo
 	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1"
 
+permissions-demo:
+	mkdir demo
+	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1" --permissions
+
+
 clean-demo:
 	rm -rf demo

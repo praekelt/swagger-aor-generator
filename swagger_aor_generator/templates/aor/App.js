@@ -9,8 +9,7 @@ import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 import authClient from './auth/authClient';
 {% if add_permissions %}
-import { PERMISSIONS } from './auth/authPermissions';
-import { allowAccess } from './utils';
+import permissionsStore from '../auth/PermissionsStore';
 {% endif %}
 import Menu from './Menu';
 
@@ -30,15 +29,17 @@ import {
 const App = () => (
     <Admin title="{{ title }}" menu={Menu} theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
     {% if add_permissions %}
-        {permissions => [
+        {[
             {% for name, actions in resources.items() %}
             {% if actions.has_methods %}
-            allowAccess(permissions, PERMISSIONS.{{ actions.path }}.list) 
+            permissionsStore.getResourcePermission('{{ actions.path }}', 'list') 
                 ? <Resource
                       name="{{ actions.path }}"
                       {% for action, details in actions.items() %}
                       {% if action in supported_components %}
-                      {{ action }}={allowAccess(permissions, PERMISSIONS.{{ actions.path }}.{{ action }}) ? {{ actions.title }}{{ action|title }} : null}
+                      {{ action }}={% if action == "list" or action == "show" %}{ {{ actions.title }}{{ action|title }} }
+                      {% else %}{permissionsStore.getResourcePermission('{{ actions.path }}', '{{ action }}') ? {{ actions.title }}{{ action|title }} : null}
+                      {% endif %}
                       {% endif %}
                       {% endfor %} 
                 /> : null,

@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { MenuItemLink, getResources } from 'admin-on-rest';
 import ListIcon from 'material-ui/svg-icons/action/view-list';
+import { titleCase } from './utils';
 
 const ICONS = {
     {% for name, actions in resources.items() %}

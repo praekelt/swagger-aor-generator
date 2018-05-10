@@ -72,6 +72,7 @@ OPERATION_SUFFIXES = ["list", "read", "create", "update"]
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
 
 ADDITIONAL_FILES = {
+    "root": ["utils.js"],
     "auth": ["authClient.js"],
     "fields": ["ObjectField.js"],
     "inputs": ["DateRangeInput.js"]
@@ -349,7 +350,7 @@ class Generator(object):
 
                 definition = None
                 head_component = None
-                permissions = io.get("permissions", []) if self.permissions else None
+                permissions = io.get("x-aor-permissions", []) if self.permissions else None
 
                 # Get the correct definition/head_component/component suffix per
                 # verb based on the operation.
@@ -554,22 +555,13 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
-        with open(os.path.join(self.output_dir, "utils.js"), "w") as f:
-            data = self.generate_js_file(
-                filename="utils.js",
-                context={
-                    "add_permissions": self.permissions
-                }
-            )
-            f.write(data)
-            if self.verbose:
-                print(data)
         if self.permissions:
-            with open(os.path.join(self.output_dir, "authPermissions.js"), "w") as f:
+            with open(os.path.join(self.output_dir, "PermissionsStore.js"), "w") as f:
                 data = self.generate_js_file(
-                    filename="authPermissions.js",
+                    filename="PermissionsStore.js",
                     context={
-                        "resources": self._resources
+                        "resources": self._resources,
+                        "supported_components": SUPPORTED_COMPONENTS
                     }
                 )
                 f.write(data)
@@ -577,9 +569,12 @@ class Generator(object):
                     print(data)
         # Generate additional Files
         for _dir, files in ADDITIONAL_FILES.items():
-            path_dir = "{}/{}".format(self.output_dir, _dir)
-            if not os.path.exists(path_dir):
-                os.makedirs(path_dir)
+            if _dir != "root":
+                path_dir = "{}/{}".format(self.output_dir, _dir)
+                if not os.path.exists(path_dir):
+                    os.makedirs(path_dir)
+            else:
+                path_dir = self.output_dir
             for file in files:
                 click.secho("Adding {} file...".format(file), fg="cyan")
                 with open(os.path.join(path_dir, file), "w") as f:
