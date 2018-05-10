@@ -427,7 +427,7 @@ When the permission flag is set on generation, a file `PermissionsStore.js` will
 | getResourcePermission(resource, permission)    | Get the resource permission flag for the user.                                                                                           |
 | permissionFlags                                | The permission flags mapping that is populated after loadPermissions has been loaded.                                                    |
 
-All the generated resources will utilize this PermissionsStore to check if the corresponding resource permission flag is true/false to show/hide the given component (uses `getResourcePermissions(resource, permission)`), therefore import the PermissionsStore and on login run `loadPermissions(userPermissions)` supplying your user permissions. IF you do not load in the current user permissions an error will occur when trying to retrieve a permission flag. 
+All the generated resources will utilize this PermissionsStore to check if the corresponding resource permission flag is true/false to show/hide the given component (uses `getResourcePermissions(resource, permission)`), therefore import the PermissionsStore and on login STORE the permissions in localStorage and run `loadPermissions(userPermissions)` supplying your user permissions. IF you do not load in the current user permissions OR store in localStorage an error will occur when trying to retrieve a permission flag and refreshing the page will cause the permissions to be reset and it will try look at local storage for the existing permissions of the user.
 
 Example:
 

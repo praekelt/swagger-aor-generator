@@ -51,6 +51,13 @@ class PermissionsStore {
     getResourcePermission(resource, permission) {
         if (this.permissionFlags) {
             return this.permissionFlags[resource][permission];
+        } else {
+            let userPermissions = localStorage.getItem('permissions');
+            if (userPermissions) {
+                userPermissions = userPermissions.split(',');
+                this.loadPermissions(userPermissions);
+                return this.permissionFlags[resource][permission];
+            }
         }
         console.error("Permissions Store has not been loaded with user permissions yet!")
     }
