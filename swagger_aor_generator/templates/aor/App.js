@@ -9,7 +9,7 @@ import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 import authClient from './auth/authClient';
 {% if add_permissions %}
-import permissionsStore from '../auth/PermissionsStore';
+import permissionsStore from './auth/PermissionsStore';
 {% endif %}
 import Menu from './Menu';
 

@@ -1,5 +1,3 @@
-import { allowAccess } from './utils';
-
 /**
  * Generated authPermissions.js code. Edit at own risk.
  * When regenerated the changes will be lost.
@@ -47,6 +45,7 @@ class PermissionsStore {
                 },
                 {}
             );
+            return null;
         });
     }
     getResourcePermission(resource, permission) {
