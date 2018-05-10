@@ -35,6 +35,6 @@ const Menu = ({ resources, onMenuTap, logout }) => (
 
 const mapStateToProps = state => ({
     resources: getResources(state)
-})
+});
 export default connect(mapStateToProps)(Menu);
 /** End of Generated Menu.js Code **/
