@@ -67,9 +67,9 @@ COMPONENT_SUFFIX = {
     "edit": "Input"
 }
 
-OPERATION_SUFFIXES = ["list", "read", "create", "update"]
+OPERATION_SUFFIXES = ["list", "read", "create", "update", "delete"]
 
-SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
+SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
 
 ADDITIONAL_FILES = {
     "root": ["utils.js"],
@@ -447,7 +447,7 @@ class Generator(object):
                     if the_import not in self._resources[name]["imports"]:
                         self._resources[name]["imports"].append(the_import)
                 elif "delete" in operation_id:
-                    self._resources[name]["delete"] = {
+                    self._resources[name]["remove"] = {
                         "permissions": permissions
                     }
                 if head_component and definition:

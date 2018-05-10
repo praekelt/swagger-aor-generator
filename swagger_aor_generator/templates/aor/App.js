@@ -32,13 +32,15 @@ const App = () => (
         {[
             {% for name, actions in resources.items() %}
             {% if actions.has_methods %}
-            permissionsStore.getResourcePermission('{{ actions.path }}', 'list') 
+            permissionsStore.getResourcePermission('{{ actions.path }}', 'list')
                 ? <Resource
                       name="{{ actions.path }}"
                       {% for action, details in actions.items() %}
                       {% if action in supported_components %}
-                      {{ action }}={% if action == "list" or action == "show" %}{ {{ actions.title }}{{ action|title }} }
-                      {% else %}{permissionsStore.getResourcePermission('{{ actions.path }}', '{{ action }}') ? {{ actions.title }}{{ action|title }} : null}
+                      {{ action }}={% if action == "list" or action == "show" %}{% if action == "remove" %}{ Delete }
+                      {% else %}{ {{ actions.title }}{{ action|title }} }
+                      {% endif %}
+                      {% else %}{permissionsStore.getResourcePermission('{{ actions.path }}', '{{ action }}') ? {% if action == "remove" %}Delete{% else %}{{ actions.title }}{{ action|title }}{% endif %} : null}
                       {% endif %}
                       {% endif %}
                       {% endfor %} 
@@ -53,10 +55,11 @@ const App = () => (
             name="{{ actions.path }}"
             {% for action, details in actions.items() %}
             {% if action in supported_components %}
-            {{ action }}={ {{ actions.title }}{{ action|title }} }
+            {{ action }}={% if action == "remove" %}{ Delete }
+            {% else %}{ {{ actions.title }}{{ action|title }} }
+            {% endif %}
             {% endif %}
             {% endfor %}
-            remove={Delete}
         />
     {% endif %}
     {% endfor %}

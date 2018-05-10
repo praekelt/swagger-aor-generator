@@ -118,10 +118,12 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% if resource.show %}
             <ShowButton />
             {% endif %}
+            {% if resource.remove %}
             {% if add_permissions %}
             {permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
             {% else %}
             <DeleteButton />
+            {% endif %}
             {% endif %}
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
