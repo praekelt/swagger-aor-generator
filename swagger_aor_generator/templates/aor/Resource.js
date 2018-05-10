@@ -110,7 +110,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% if component == "list" %}
             {% if resource.edit %}
             {% if add_permissions %}
-            {permissionsStore('{{ resource.path }}', 'edit') ? <EditButton /> : null}
+            {permissionsStore.getResourcePermission('{{ resource.path }}', 'edit') ? <EditButton /> : null}
             {% else %}
             <EditButton />
             {% endif %}
@@ -120,7 +120,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% if resource.remove %}
             {% if add_permissions %}
-            {permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
+            {permissionsStore.getResourcePermission('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
             {% else %}
             <DeleteButton />
             {% endif %}
