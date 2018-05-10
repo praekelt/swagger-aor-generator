@@ -109,7 +109,8 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endfor %}
             {% if component == "list" %}
             {% if resource.edit %}
-            {% if add_permissions %}{permissionsStore('{{ resource.path }}', 'edit') ? <EditButton /> : null}
+            {% if add_permissions %}
+            {permissionsStore('{{ resource.path }}', 'edit') ? <EditButton /> : null}
             {% else %}
             <EditButton />
             {% endif %}
