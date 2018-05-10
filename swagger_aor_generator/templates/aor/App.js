@@ -17,7 +17,7 @@ import Menu from './Menu';
 {% if actions.has_methods %}
 import {
     {% for action, details in actions.items() %}
-    {% if action in supported_components %}
+    {% if action in supported_components and action != 'remove' %}
     {{ actions.title }}{{ action|title }},
     {% endif %}
     {% endfor %}
