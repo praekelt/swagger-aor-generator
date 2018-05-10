@@ -117,7 +117,8 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% if resource.show %}
             <ShowButton />
             {% endif %}
-            {% if add_permissions %}{permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
+            {% if add_permissions %}
+            {permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
             {% else %}
             <DeleteButton />
             {% endif %}
