@@ -556,7 +556,10 @@ class Generator(object):
             if self.verbose:
                 print(data)
         if self.permissions:
-            with open(os.path.join(self.output_dir, "PermissionsStore.js"), "w") as f:
+            path_dir = self.output_dir + "/auth"
+            if not os.path.exists(path_dir):
+                os.makedirs(path_dir)
+            with open(os.path.join(path_dir, "PermissionsStore.js"), "w") as f:
                 data = self.generate_js_file(
                     filename="PermissionsStore.js",
                     context={
