@@ -29,7 +29,7 @@ import {
 const App = () => (
     <Admin title="{{ title }}" menu={Menu} theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
     {% if add_permissions %}
-        {[
+        {permissions => [
             {% for name, actions in resources.items() %}
             {% if actions.has_methods %}
             permissionsStore.getResourcePermission('{{ actions.path }}', 'list')
