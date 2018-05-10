@@ -78,6 +78,9 @@
     "/pets": {
       "get": {
         "operationId": "pet_list",
+        "x-aor-permissions": [
+          "pet:read"
+        ],
         "parameters": [
           {
             "$ref": "#/parameters/optional_pet_id"
@@ -125,6 +128,9 @@
           "application/json"
         ],
         "operationId": "pet_create",
+        "x-aor-permissions": [
+          "pet:create"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -158,6 +164,9 @@
       ],
       "delete": {
         "operationId": "pet_delete",
+        "x-aor-permissions": [
+          "pet:delete"
+        ],
         "responses": {
           "204": {
             "description": ""
@@ -169,6 +178,9 @@
       },
       "get": {
         "operationId": "pet_read",
+        "x-aor-permissions": [
+          "pet:read"
+        ],
         "produces": [
           "application/json"
         ],
@@ -189,6 +201,9 @@
           "application/json"
         ],
         "operationId": "pet_update",
+        "x-aor-permissions": [
+          "pet:update"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -217,6 +232,9 @@
     "/users": {
       "get": {
         "operationId": "user_list",
+        "x-aor-permissions": [
+          "user:read"
+        ],
         "parameters": [
           {
             "$ref": "#/parameters/optional_user_id"
@@ -258,6 +276,9 @@
           "application/json"
         ],
         "operationId": "user_create",
+        "x-aor-permissions": [
+          "user:create"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -291,6 +312,9 @@
       ],
       "delete": {
         "operationId": "user_delete",
+        "x-aor-permissions": [
+          "user:delete"
+        ],
         "responses": {
           "204": {
             "description": ""
@@ -302,6 +326,9 @@
       },
       "get": {
         "operationId": "user_read",
+        "x-aor-permissions": [
+          "user:read"
+        ],
         "produces": [
           "application/json"
         ],
@@ -322,6 +349,9 @@
           "application/json"
         ],
         "operationId": "user_update",
+        "x-aor-permissions": [
+          "user:update"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -350,6 +380,9 @@
     "/categories": {
       "get": {
         "operationId": "category_list",
+        "x-aor-permissions": [
+          "category:read"
+        ],
         "parameters": [
           {
             "name": "category_ids",
@@ -388,6 +421,9 @@
           "application/json"
         ],
         "operationId": "category_create",
+        "x-aor-permissions": [
+          "category:create"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -421,6 +457,9 @@
       ],
       "delete": {
         "operationId": "category_delete",
+        "x-aor-permissions": [
+          "category:delete"
+        ],
         "responses": {
           "204": {
             "description": ""
@@ -432,6 +471,9 @@
       },
       "get": {
         "operationId": "category_read",
+        "x-aor-permissions": [
+          "category:read"
+        ],
         "produces": [
           "application/json"
         ],

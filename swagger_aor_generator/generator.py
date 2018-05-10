@@ -67,11 +67,12 @@ COMPONENT_SUFFIX = {
     "edit": "Input"
 }
 
-OPERATION_SUFFIXES = ["list", "read", "create", "update"]
+OPERATION_SUFFIXES = ["list", "read", "create", "update", "delete"]
 
-SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
+SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
 
 ADDITIONAL_FILES = {
+    "root": ["utils.js"],
     "auth": ["authClient.js"],
     "fields": ["ObjectField.js"],
     "inputs": ["DateRangeInput.js"]
@@ -106,13 +107,14 @@ def render_to_string(filename, context):
 class Generator(object):
 
     def __init__(self, output_dir, module_name=DEFAULT_MODULE, verbose=False,
-                 rest_server_url=None):
+                 rest_server_url=None, permissions=False):
         self.parser = None
         self.module_name = module_name
         self._resources = None
         self.verbose = verbose
         self.output_dir = output_dir
         self.rest_server_url = rest_server_url
+        self.permissions = permissions
 
     def load_specification(self, specification_path, spec_format=None):
         # If the swagger spec format is not specified explicitly, we try to
@@ -256,8 +258,10 @@ class Generator(object):
         return attributes
 
     def _get_resource_from_definition(self, resource_name, head_component,
-                                      definition):
-        self._resources[resource_name][head_component] = {}
+                                      definition, permissions=None):
+        self._resources[resource_name][head_component] = {
+            "permissions": permissions or []
+        }
         suffix = COMPONENT_SUFFIX[head_component]
         properties = definition.get("properties", {})
         resource = self._get_resource_attributes(
@@ -346,6 +350,7 @@ class Generator(object):
 
                 definition = None
                 head_component = None
+                permissions = io.get("x-aor-permissions", []) if self.permissions else None
 
                 # Get the correct definition/head_component/component suffix per
                 # verb based on the operation.
@@ -441,13 +446,18 @@ class Generator(object):
                     the_import = head_component.title()
                     if the_import not in self._resources[name]["imports"]:
                         self._resources[name]["imports"].append(the_import)
+                elif "delete" in operation_id:
+                    self._resources[name]["remove"] = {
+                        "permissions": permissions
+                    }
                 if head_component and definition:
                     # Toggle to be included in AOR if it has a single method.
                     self._resources[name]["has_methods"] = True
                     self._get_resource_from_definition(
                         resource_name=name,
                         head_component=head_component,
-                        definition=definition
+                        definition=definition,
+                        permissions=permissions
                     )
 
     @staticmethod
@@ -478,7 +488,8 @@ class Generator(object):
                     "title": self.module_name,
                     "rest_server_url": self.rest_server_url,
                     "resources": self._resources,
-                    "supported_components": SUPPORTED_COMPONENTS
+                    "supported_components": SUPPORTED_COMPONENTS,
+                    "add_permissions": self.permissions
                 })
             f.write(data)
             if self.verbose:
@@ -507,7 +518,8 @@ class Generator(object):
                         context={
                             "name": title,
                             "resource": resource,
-                            "supported_components": SUPPORTED_COMPONENTS
+                            "supported_components": SUPPORTED_COMPONENTS,
+                            "add_permissions": self.permissions
                         }
                     )
                     f.write(data)
@@ -543,11 +555,29 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
-        # Generate additional Files
-        for _dir, files in ADDITIONAL_FILES.items():
-            path_dir = "{}/{}".format(self.output_dir, _dir)
+        if self.permissions:
+            path_dir = self.output_dir + "/auth"
             if not os.path.exists(path_dir):
                 os.makedirs(path_dir)
+            with open(os.path.join(path_dir, "PermissionsStore.js"), "w") as f:
+                data = self.generate_js_file(
+                    filename="PermissionsStore.js",
+                    context={
+                        "resources": self._resources,
+                        "supported_components": SUPPORTED_COMPONENTS
+                    }
+                )
+                f.write(data)
+                if self.verbose:
+                    print(data)
+        # Generate additional Files
+        for _dir, files in ADDITIONAL_FILES.items():
+            if _dir != "root":
+                path_dir = "{}/{}".format(self.output_dir, _dir)
+                if not os.path.exists(path_dir):
+                    os.makedirs(path_dir)
+            else:
+                path_dir = self.output_dir
             for file in files:
                 click.secho("Adding {} file...".format(file), fg="cyan")
                 with open(os.path.join(path_dir, file), "w") as f:
@@ -571,12 +601,13 @@ class Generator(object):
               default="http://localhost:8000/api/v1",
               help="Use a desired rest server URL rather than "
                    "'http://localhost:8000/api/v1'")
+@click.option("--permissions/--no-permissions", default=False)
 def main(specification_path, spec_format, verbose, output_dir, module_name,
-         rest_server_url):
+         rest_server_url, permissions):
 
     generator = Generator(
         output_dir, module_name=module_name,
-        verbose=verbose, rest_server_url=rest_server_url
+        verbose=verbose, rest_server_url=rest_server_url, permissions=permissions
     )
     try:
         click.secho("Loading specification file...", fg="green")

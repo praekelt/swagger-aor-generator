@@ -28,6 +28,9 @@ import {
     {{ resource.title }}Filter
 } from '../filters/{{ resource.title }}Filter';
 {% endif %}
+{% if add_permissions %}
+import permissionsStore from '../auth/PermissionsStore';
+{% endif %}
 
 {% if resource.create %}
 const validationCreate{{ name }} = values => {
@@ -101,20 +104,27 @@ export const {{ resource.title }}{{ component|title }} = props => (
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
                     {% endif %}
                     {% endfor %}
-                    {% if component == "edit" %}
-                    <EditButton />
-                    {% endif %}
                 </Datagrid>
             </{{ inline.component }}>
             {% endfor %}
             {% if component == "list" %}
             {% if resource.edit %}
+            {% if add_permissions %}
+            {permissionsStore('{{ resource.path }}', 'edit') ? <EditButton /> : null}
+            {% else %}
             <EditButton />
+            {% endif %}
             {% endif %}
             {% if resource.show %}
             <ShowButton />
             {% endif %}
+            {% if resource.remove %}
+            {% if add_permissions %}
+            {permissionsStore('{{ resource.path }}', 'delete') ? <DeleteButton />: null}
+            {% else %}
             <DeleteButton />
+            {% endif %}
+            {% endif %}
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
     </{{ component|title }}>

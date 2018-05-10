@@ -404,6 +404,46 @@ The format attribute is REQUIRED however range defaults to false.
 
 `x-admin-on-rest-exlude: true`
 
+## Permissions
+
+You can have a permissions setup on your AOR generated code. For this you can set the flag `--permissions` when running the generator. To handle permissions in your swagger specification, add a `x-aor-permissions` array to each one of the `list`, `create`, `update` and `delete` methods specified above in your specifcation at the `operationId` level. An example is shown below:
+
+```
+...
+"operationId": "pet_list",
+"x-aor-permissions": [
+  "pet:read"
+],
+...
+```
+
+It can be seen that permission to get a pet list from the API will require the user to have all the permissions listed in the `x-aor-permissions` array.
+
+When the permission flag is set on generation, a file `PermissionsStore.js` will be created which instantiates a PermissionsStore instance that can be imported into any of your files has the following attributes:
+
+| Attribute                                      | Description                                                                                                                              |
+| -----------------------------------------------| -----------------------------------------------------------------------------------------------------------------------------------------|
+| loadPermissions(userPermissions)               | Given an array of the current user's permissions, create flags for each resource permission based on what the user has permission to do  |
+| getResourcePermission(resource, permission)    | Get the resource permission flag for the user.                                                                                           |
+| permissionFlags                                | The permission flags mapping that is populated after loadPermissions has been loaded.                                                    |
+
+All the generated resources will utilize this PermissionsStore to check if the corresponding resource permission flag is true/false to show/hide the given component (uses `getResourcePermissions(resource, permission)`), therefore import the PermissionsStore and on login run `loadPermissions(userPermissions)` supplying your user permissions. IF you do not load in the current user permissions an error will occur when trying to retrieve a permission flag. 
+
+Example:
+
+If I have the single `pet_list` operation with the permissions listed above and a user with the permissions `["pet:read"]`, when the PermissionsStore is loaded, then the following permissionFlags object will be created and used with the `getResourcePermission` function:
+
+```
+{
+  pets: [object Object] {
+    list: true
+  }
+}
+```
+
+If the user has the permissions `["owner:read"]` then the above flag will be `false`. 
+
+*NOTE*: If an endpoint has no permissions listed, it is assumed that all users have permission to perform API call. 
 
 ## TODOS (What would be cool as well)
 
