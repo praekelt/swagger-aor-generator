@@ -72,7 +72,7 @@ OPERATION_SUFFIXES = ["list", "read", "create", "update", "delete"]
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
 
 ADDITIONAL_FILES = {
-    "root": ["utils.js"],
+    "root": ["utils.js", "catchAll.js"],
     "auth": ["authClient.js"],
     "fields": ["ObjectField.js"],
     "inputs": ["DateRangeInput.js"]

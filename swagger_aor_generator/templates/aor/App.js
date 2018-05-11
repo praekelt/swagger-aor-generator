@@ -6,12 +6,14 @@ import React from 'react';
 import { cyan500, cyan300 } from 'material-ui/styles/colors';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
-import swaggerRestServer from './swaggerRestServer';
+
 import authClient from './auth/authClient';
+import catchAll from './catchAll';
+import Menu from './Menu';
 {% if add_permissions %}
 import permissionsStore from './auth/PermissionsStore';
 {% endif %}
-import Menu from './Menu';
+import swaggerRestServer from './swaggerRestServer';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
@@ -27,7 +29,14 @@ import {
 {% endfor %}
 
 const App = () => (
-    <Admin title="{{ title }}" menu={Menu} theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
+    <Admin
+        title="{{ title }}"
+        menu={Menu}
+        theme={getMuiTheme(muiTheme)}
+        restClient={swaggerRestServer('{{ rest_server_url }}')}
+        authClient={authClient}
+        catchAll={catchAll}
+    >
     {% if add_permissions %}
         {permissions => [
             {% for name, actions in resources.items() %}
