@@ -3,8 +3,8 @@
  * When regenerated the changes will be lost.
  **/
 class PermissionsStore {
-    constructor(){
-        if(!PermissionsStore.instance) {
+    constructor() {
+        if (!PermissionsStore.instance) {
             this.requiredPermissions = {
                 {% for name, actions in resources.items() %}
                 {% if actions.has_methods %}
@@ -26,27 +26,32 @@ class PermissionsStore {
         return PermissionsStore.instance;
     }
     loadPermissions(userPermissions) {
-        this.permissionFlags = {}
+        this.permissionFlags = {};
         const allowAccess = (userPermissions, requiredPermissions) => {
             if (requiredPermissions.length > 0) {
                 return requiredPermissions.every(permission => {
                     return userPermissions.has(permission);
-                })
+                });
             } else {
                 return true;
             }
-        }
+        };
         const permissionSet = new Set(userPermissions);
-        Object.entries(this.requiredPermissions).map(([resource, permissions]) => {
-            this.permissionFlags[resource] = Object.entries(permissions).reduce(
-                (total, [action, required]) => {
+        Object.entries(this.requiredPermissions).map(
+            ([resource, permissions]) => {
+                this.permissionFlags[resource] = Object.entries(
+                    permissions
+                ).reduce((total, [action, required]) => {
                     total[action] = allowAccess(permissionSet, required);
                     return total;
-                },
-                {}
-            );
-            return null;
-        });
+                }, {});
+                return null;
+            }
+        );
+        localStorage.setItem(
+            'permissions',
+            JSON.stringify(this.permissionFlags)
+        );
     }
     getResourcePermission(resource, permission) {
         if (this.permissionFlags) {
@@ -54,14 +59,16 @@ class PermissionsStore {
         } else {
             let userPermissions = localStorage.getItem('permissions');
             if (userPermissions) {
-                userPermissions = userPermissions.split(',');
-                this.loadPermissions(userPermissions);
+                this.permissionFlags = JSON.parse(userPermissions);
                 return this.permissionFlags[resource][permission];
             }
         }
-        console.error("Permissions Store has not been loaded with user permissions yet!")
+        console.error(
+            'Permissions Store has not been loaded with user permissions! ' +
+                'Please run `loadPermissions` with the user permissions.'
+        );
     }
-};
+}
 
 const storeInstance = new PermissionsStore();
 Object.freeze(PermissionsStore);
