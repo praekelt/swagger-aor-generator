@@ -74,7 +74,7 @@ SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
 ADDITIONAL_FILES = {
     "root": ["utils.js", "catchAll.js"],
     "auth": ["authClient.js"],
-    "fields": ["ObjectField.js"],
+    "fields": ["ObjectField.js", "EmptyField.js"],
     "inputs": ["DateRangeInput.js"]
 }
 

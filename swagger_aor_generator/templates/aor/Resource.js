@@ -18,6 +18,11 @@ import {
 {% if "DateTimeInput" in resource.imports %}
 import DateTimeInput from 'aor-datetime-input';
 {% endif %}
+{% if add_permissions %}
+import {
+    EmptyField
+} from '../fields/EmptyField';
+{% endif %}
 {% if "ObjectField" in resource.imports %}
 import {
     ObjectField
@@ -93,6 +98,25 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% endfor %}
             {% for inline in entries.inlines %}
+            {% if add_permissions %}
+            {permissionsStore.getResourcePermission('{{ inline.reference }}', 'list') ? (
+                <{{ inline.component }} label="{{ inline.label }}" reference="{{ inline.reference }}" target="{{ inline.target }}">
+                    <Datagrid bodyOptions={ { showRowHover: true } }>
+                        {% for attribute in inline.fields %}
+                        {% if attribute.related_component %}
+                        <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
+                            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source="{{ attribute.option_text }}" />
+                        </{{ attribute.component }}>
+                        {% else %}
+                        <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+                        {% endif %}
+                        {% endfor %}
+                    </Datagrid>
+                </{{ inline.component }}>
+            ) : (
+                <EmptyField />
+            )}
+            {% else %}
             <{{ inline.component }} label="{{ inline.label }}" reference="{{ inline.reference }}" target="{{ inline.target }}">
                 <Datagrid bodyOptions={ { showRowHover: true } }>
                     {% for attribute in inline.fields %}
@@ -106,6 +130,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
                     {% endfor %}
                 </Datagrid>
             </{{ inline.component }}>
+            {% endif %}
             {% endfor %}
             {% if component == "list" %}
             {% if resource.edit %}

@@ -8,9 +8,13 @@ import { NotFound } from 'admin-on-rest';
 
 class catchAll extends Component {
     render() {
-        return localStorage.getItem('id_token') ? <NotFound /> : <Redirect push to="/login" />
+        return localStorage.getItem('id_token') ? (
+            <NotFound />
+        ) : (
+            <Redirect push to="/login" />
+        );
     }
-};
+}
 
 export default catchAll;
 /** End of Generated Code **/
