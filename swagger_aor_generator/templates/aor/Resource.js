@@ -19,9 +19,7 @@ import {
 import DateTimeInput from 'aor-datetime-input';
 {% endif %}
 {% if add_permissions %}
-import {
-    EmptyField
-} from '../fields/EmptyField';
+import EmptyField from '../fields/EmptyField';
 {% endif %}
 {% if "ObjectField" in resource.imports %}
 import {
