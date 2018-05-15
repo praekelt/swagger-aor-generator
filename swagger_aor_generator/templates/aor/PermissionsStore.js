@@ -21,6 +21,7 @@ class PermissionsStore {
             this.permissionFlags = null;
             this.loadPermissions = this.loadPermissions.bind(this);
             this.getResourcePermission = this.getResourcePermission.bind(this);
+            this.manyResourcePermissions = this.manyResourcePermissions.bind(this);
             PermissionsStore.instance = this;
         }
         return PermissionsStore.instance;
@@ -63,9 +64,14 @@ class PermissionsStore {
                 return this.permissionFlags[resource][permission];
             }
         }
-        console.error(
-            'Permissions Store has not been loaded with user permissions! ' +
-                'Please run `loadPermissions` with the user permissions.'
+        console.log('Permissions store not loaded yet.');
+        return false;
+    }
+    manyResourcePermissions(resourcePermissions) {
+        return Object.entries(resourcePermissions).every(
+            ([resource, permission]) => {
+                return this.getResourcePermission(resource, permission);
+            }
         );
     }
 }
