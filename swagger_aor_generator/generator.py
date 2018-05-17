@@ -29,16 +29,18 @@ COMPONENT_MAPPING = {
     "Field": {
         "boolean": "BooleanField",
         "date": "DateField",
-        "date-time": "DateTimeField",
+        "date-time": "DateField",
         "enum": "SelectField",
         "integer": "NumberField",
         "many": "ReferenceManyField",
+        "object": "ObjectField",
         "relation": "ReferenceField",
         "string": "TextField"
     },
     "Input": {
         "boolean": "BooleanInput",
         "date": "DateInput",
+        "date-time": "DateTimeInput",
         "date-range": "DateRangeInput",
         "date-time-range": "DateRangeInput",
         "enum": "SelectInput",
@@ -77,7 +79,7 @@ ADDITIONAL_FILES = {
 }
 
 CUSTOM_IMPORTS = {
-    "object": {
+    "object-field": {
         "name": "ObjectField",
         "directory": "../fields/ObjectField"
     },
@@ -85,7 +87,7 @@ CUSTOM_IMPORTS = {
         "name": "EmptyField",
         "directory": "../fields/EmptyField"
     },
-    "date-time": {
+    "date-time-input": {
         "name": "DateTimeInput",
         "directory": "aor-datetime-input"
     },
@@ -94,6 +96,8 @@ CUSTOM_IMPORTS = {
         "directory": "../auth/PermissionsStore"
     }
 }
+
+CUSTOM_COMPONENTS = ["ObjectField", "EmptyField", "DateTimeInput"]
 
 
 def render_to_string(filename, context):
@@ -259,7 +263,8 @@ class Generator(object):
             if attribute.get("component", None) is not None:
                 # Add component to resource imports if not there.
                 if attribute["component"] not in \
-                        self._resources[resource_name]["imports"]:
+                        self._resources[resource_name]["imports"] and \
+                        attribute["component"] not in CUSTOM_COMPONENTS:
                     self._resources[resource_name]["imports"].append(
                         attribute["component"]
                     )
@@ -272,13 +277,14 @@ class Generator(object):
                         )
                 attributes.append(attribute)
             # Check for custom import types here.
-            _format = attribute.get("format", None)
-            if attribute["type"] in CUSTOM_IMPORTS or _format:
+            _type = "{}-{}".format(attribute["type"], suffix.lower())
+            _format = "{}-{}".format(_property.get("format", ""), suffix.lower())
+            if _type in CUSTOM_IMPORTS or _format in CUSTOM_IMPORTS:
                 custom_imports = [
                     custom["name"]
                     for custom in self._resources[resource_name]["custom_imports"]
-                ]
-                _import = CUSTOM_IMPORTS[_format] if _format else CUSTOM_IMPORTS[attribute["type"]]
+                ] 
+                _import = CUSTOM_IMPORTS.get(_format) or CUSTOM_IMPORTS.get(_type)
                 if _import["name"] not in custom_imports:
                     self._resources[resource_name]["custom_imports"].append(
                         _import
@@ -314,7 +320,7 @@ class Generator(object):
                     custom["name"]
                     for custom in self._resources[resource_name]["custom_imports"]
                 ]
-                if "EmptyField" in custom_imports:
+                if "EmptyField" not in custom_imports:
                     self._resources[resource_name]["custom_imports"].append(
                         CUSTOM_IMPORTS["empty"]
                     )

@@ -637,6 +637,13 @@
           "type": "string",
           "example": "doggie"
         },
+        "metadata": {
+          "type": "object"
+        },
+        "last_eaten": {
+          "type": "string",
+          "format": "date-time"
+        },
         "date_of_birth": {
           "type": "string",
           "format": "date"
@@ -663,6 +670,13 @@
         "name": {
           "type": "string",
           "example": "doggie"
+        },
+        "metadata": {
+          "type": "object"
+        },
+        "last_eaten": {
+          "type": "string",
+          "format": "date-time"
         },
         "photoUrls": {
           "type": "array",
@@ -694,6 +708,10 @@
         "name": {
           "type": "string",
           "example": "doggie"
+        },
+        "last_eaten": {
+          "type": "string",
+          "format": "date-time"
         },
         "photoUrls": {
           "type": "array",
