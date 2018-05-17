@@ -14,13 +14,13 @@ import {
 {% if "DateRangeInput" in filters.imports %}
 import DateRangeInput from '../inputs/DateRangeInput';
 {% endif %}
-
 {% for filter in filters.filters %}
 {% if filter.array %}
-const parse{{ filter.title }} = value => value.replace(/[^\w]/gi, ',');
 
+const parse{{ filter.title }} = value => value.replace(/[^\w]/gi, ',');
 {% endif %}
 {% if filter.array == "integer" %}
+
 const validate{{ filter.title }} = value => {
     const valid = value.replace(/[^\w]/gi, ',').split(',').every(item => !isNaN(item))
     if (!valid) {
