@@ -22,9 +22,11 @@ const parse{{ filter.title }} = value => value.replace(/[^\w]/gi, ',');
 {% if filter.array == "integer" %}
 
 const validate{{ filter.title }} = value => {
-    const valid = value.replace(/[^\w]/gi, ',').split(',').every(item => !isNaN(item))
-    if (!valid) {
-        return "{{ filter.label }} are not all numbers.";
+    if (value) {
+        const valid = value.replace(/[^\w]/gi, ',').split(',').every(item => !isNaN(item))
+        if (!valid) {
+            return "{{ filter.label }} are not all numbers.";
+        }
     }
 };
 {% endif %}
