@@ -33,7 +33,6 @@ COMPONENT_MAPPING = {
         "enum": "SelectField",
         "integer": "NumberField",
         "many": "ReferenceManyField",
-        "object": "ObjectField",
         "relation": "ReferenceField",
         "string": "TextField"
     },
@@ -274,8 +273,11 @@ class Generator(object):
                 attributes.append(attribute)
             # Check for custom import types here.
             if attribute["type"] in CUSTOM_IMPORTS:
-                if CUSTOM_IMPORTS[attribute["type"]]["name"] not in \
-                        self._resources[resource_name]["custom_imports"]:
+                custom_imports = [
+                    custom["name"]
+                    for custom in self._resources[resource_name]["custom_imports"]
+                ]
+                if CUSTOM_IMPORTS[attribute["type"]]["name"] not in custom_imports:
                     self._resources[resource_name]["custom_imports"].append(
                         CUSTOM_IMPORTS[attribute["type"]]
                     )
@@ -306,6 +308,14 @@ class Generator(object):
         # Inlines are only shown on the Show and Edit components.
         if inlines is not None and head_component in ["show", "edit"]:
             if resource_name in inlines:
+                custom_imports = [
+                    custom["name"]
+                    for custom in self._resources[resource_name]["custom_imports"]
+                ]
+                if "EmptyField" in custom_imports:
+                    self._resources[resource_name]["custom_imports"].append(
+                        CUSTOM_IMPORTS["empty"]
+                    )
                 self._resources[resource_name][head_component]["inlines"] = []
                 inlines = inlines[resource_name]["inlines"]
                 for inline in inlines:
@@ -382,11 +392,9 @@ class Generator(object):
 
                 if not permission_imports_loaded:
                     permission_imports_loaded = True
-
-                    self._resources[name]["custom_imports"].extend([
-                        CUSTOM_IMPORTS["empty"],
+                    self._resources[name]["custom_imports"].append(
                         CUSTOM_IMPORTS["permissions"]
-                    ])
+                    )
 
                 # Get the correct definition/head_component/component suffix per
                 # verb based on the operation.
