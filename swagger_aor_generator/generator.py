@@ -378,10 +378,11 @@ class Generator(object):
 
                 definition = None
                 head_component = None
-                permissions = None
-                if self.permissions and not permission_imports_loaded:
+                permissions = io.get("x-aor-permissions", []) if self.permissions else None
+
+                if not permission_imports_loaded:
                     permission_imports_loaded = True
-                    permissions = io.get("x-aor-permissions", [])
+
                     self._resources[name]["custom_imports"].extend([
                         CUSTOM_IMPORTS["empty"],
                         CUSTOM_IMPORTS["permissions"]
