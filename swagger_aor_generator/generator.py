@@ -272,7 +272,7 @@ class Generator(object):
                         )
                 attributes.append(attribute)
             # Check for custom import types here.
-             _format = attribute.get("format", None)
+            _format = attribute.get("format", None)
             if attribute["type"] in CUSTOM_IMPORTS or _format:
                 custom_imports = [
                     custom["name"]
