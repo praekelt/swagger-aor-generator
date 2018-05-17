@@ -316,14 +316,15 @@ class Generator(object):
         # Inlines are only shown on the Show and Edit components.
         if inlines is not None and head_component in ["show", "edit"]:
             if resource_name in inlines:
-                custom_imports = [
-                    custom["name"]
-                    for custom in self._resources[resource_name]["custom_imports"]
-                ]
-                if "EmptyField" not in custom_imports:
-                    self._resources[resource_name]["custom_imports"].append(
-                        CUSTOM_IMPORTS["empty"]
-                    )
+                if self.permissions:
+                    custom_imports = [
+                        custom["name"]
+                        for custom in self._resources[resource_name]["custom_imports"]
+                    ]
+                    if "EmptyField" not in custom_imports:
+                        self._resources[resource_name]["custom_imports"].append(
+                            CUSTOM_IMPORTS["empty"]
+                        )
                 self._resources[resource_name][head_component]["inlines"] = []
                 inlines = inlines[resource_name]["inlines"]
                 for inline in inlines:
@@ -398,7 +399,7 @@ class Generator(object):
                 head_component = None
                 permissions = io.get("x-aor-permissions", []) if self.permissions else None
 
-                if not permission_imports_loaded:
+                if not permission_imports_loaded and self.permissions:
                     permission_imports_loaded = True
                     self._resources[name]["custom_imports"].append(
                         CUSTOM_IMPORTS["permissions"]
