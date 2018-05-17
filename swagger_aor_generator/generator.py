@@ -272,14 +272,16 @@ class Generator(object):
                         )
                 attributes.append(attribute)
             # Check for custom import types here.
-            if attribute["type"] in CUSTOM_IMPORTS:
+             _format = attribute.get("format", None)
+            if attribute["type"] in CUSTOM_IMPORTS or _format:
                 custom_imports = [
                     custom["name"]
                     for custom in self._resources[resource_name]["custom_imports"]
                 ]
-                if CUSTOM_IMPORTS[attribute["type"]]["name"] not in custom_imports:
+                _import = CUSTOM_IMPORTS[_format] if _format else CUSTOM_IMPORTS[attribute["type"]]
+                if _import["name"] not in custom_imports:
                     self._resources[resource_name]["custom_imports"].append(
-                        CUSTOM_IMPORTS[attribute["type"]]
+                        _import
                     )
 
         return attributes
