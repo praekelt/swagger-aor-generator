@@ -38,6 +38,7 @@ COMPONENT_MAPPING = {
         "string": "TextField"
     },
     "Input": {
+        "array": "TextInput",
         "boolean": "BooleanInput",
         "date": "DateInput",
         "date-time": "DateTimeInput",
@@ -461,6 +462,7 @@ class Generator(object):
                             if component not in filter_imports:
                                 filter_imports.append(component)
                             source = param["name"]
+                            label = source.replace("_", " ").title()
                             _min = param.get("minLength", None)
                             _max = param.get("maxLength", None)
                             if _min or _max:
@@ -468,11 +470,16 @@ class Generator(object):
                                     "min_length": _min,
                                     "max_length": _max
                                 }
+                            # Handle Array filter types finally!
+                            array_validation = param["items"]["type"] \
+                                if _type == "array" else None
                             filters.append({
-                                "source": param["name"],
-                                "label": param["name"].replace("_", " ").title(),
+                                "source": source,
+                                "label": label,
+                                "title": label.replace(" ", ""),
                                 "component": component,
-                                "props": props
+                                "props": props,
+                                "array": array_validation
                             })
                     if filters:
                         self._resources[name]["filters"] = {
