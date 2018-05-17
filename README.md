@@ -242,6 +242,7 @@ Each property will be catered for in the generated Admin on Rest client. The pro
 | date-time       | DateField        | DateTimeInput    |
 | enum            | SelectField      | SelectInput      |
 | object*         | ObjectField*     | LongTextInput*   |
+| array           | TextField        | None             |
 
 * Object types use a Custom ObjectField included in the generation of the Admin on Rest Client. For their input a LongTextInput is utilized with `parse` and `format` props that handle the sending and presentation of the field data.
 
@@ -383,6 +384,8 @@ List filters are all generated in and additional file `Filters.js`. In order to 
 
 Here we have one parameter named `pet_id`. This parameter is given `in` the `query`. This will generate a filter component for Pet list with a single filter option, many can be added to the parameters for more filter options.
 The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `swaggerRestServer.js` to only query when the minimum length of input has been typed in that filter.
+
+*NOTE*: Array filters are handled however come automatically with a CSV format parser on the TextField input, and when the items are labeld as integer type, a validation on the input is given. The text field parsing will automatically turn all special characters to `,` in order to follow the CSV input requirement.
 
 ### Different Filter Inputs
 
