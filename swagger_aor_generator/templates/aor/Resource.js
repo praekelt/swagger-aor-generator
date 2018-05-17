@@ -5,34 +5,21 @@
 import React from 'react';
 import {
     {% for import in resource.imports %}
-    {% if import not in ["DateTimeInput", "ObjectField"] %}
     {{ import }},
-    {% endif %}
     {% endfor %}
+    {% if resource.remove %}
     DeleteButton,
+    {% endif %}
     {% if resource.edit %}
     EditButton,
     {% endif %}
     ShowButton
 } from 'admin-on-rest';
-{% if "DateTimeInput" in resource.imports %}
-import DateTimeInput from 'aor-datetime-input';
-{% endif %}
-{% if add_permissions %}
-import EmptyField from '../fields/EmptyField';
-{% endif %}
-{% if "ObjectField" in resource.imports %}
-import {
-    ObjectField
-} from '../fields/ObjectField';
-{% endif %}
+{% for import in resource.custom_imports %}
+import {{ import.name }} from '{{ import.directory }}';
+{% endfor %}
 {% if resource.filters %}
-import {
-    {{ resource.title }}Filter
-} from '../filters/{{ resource.title }}Filter';
-{% endif %}
-{% if add_permissions %}
-import permissionsStore from '../auth/PermissionsStore';
+import {{ resource.title }}Filter from '../filters/{{ resource.title }}Filter';
 {% endif %}
 
 {% if resource.create %}

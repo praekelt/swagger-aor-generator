@@ -41,7 +41,6 @@ COMPONENT_MAPPING = {
         "boolean": "BooleanInput",
         "date": "DateInput",
         "date-range": "DateRangeInput",
-        "date-time": "DateTimeInput",
         "date-time-range": "DateRangeInput",
         "enum": "SelectInput",
         "integer": "NumberInput",
@@ -76,6 +75,25 @@ ADDITIONAL_FILES = {
     "auth": ["authClient.js"],
     "fields": ["ObjectField.js", "EmptyField.js"],
     "inputs": ["DateRangeInput.js"]
+}
+
+CUSTOM_IMPORTS = {
+    "object": {
+        "name": "ObjectField",
+        "directory": "../fields/ObjectField"
+    },
+    "empty": {
+        "name": "EmptyField",
+        "directory": "../fields/EmptyField"
+    },
+    "date-time": {
+        "name": "DateTimeInput",
+        "directory": "aor-datetime-input"
+    },
+    "permissions": {
+        "name": "permissionsStore",
+        "directory": "../auth/PermissionsStore"
+    }
 }
 
 
@@ -159,7 +177,6 @@ class Generator(object):
                     continue
             # Handle reference definition
             _property, title = self._get_definition_from_ref(details)
-            # Don't handle referenced objects yet.
             if _property.get("properties", None) is not None:
                 continue
             attribute = {
@@ -255,6 +272,14 @@ class Generator(object):
                             attribute["related_component"]
                         )
                 attributes.append(attribute)
+            # Check for custom import types here.
+            if attribute["type"] in CUSTOM_IMPORTS:
+                if CUSTOM_IMPORTS[attribute["type"]]["name"] not in \
+                        self._resources[resource_name]["custom_imports"]:
+                    self._resources[resource_name]["custom_imports"].append(
+                        CUSTOM_IMPORTS[attribute["type"]]
+                    )
+
         return attributes
 
     def _get_resource_from_definition(self, resource_name, head_component,
@@ -321,6 +346,7 @@ class Generator(object):
     def _make_resource_definitions(self):
         self._resources = {}
 
+        permission_imports_loaded = False
         for path, verbs in self.parser.specification["paths"].items():
             for verb, io in verbs.items():
 
@@ -341,16 +367,25 @@ class Generator(object):
 
                 name = operation_id.split("_")[0]
                 if name not in self._resources:
+                    permission_imports_loaded = False
                     self._resources[name] = {
                         "path": path[1:].split("/")[0],
                         "imports": [],
+                        "custom_imports": [],
                         "has_methods": False,
                         "filter_lengths": {}
                     }
 
                 definition = None
                 head_component = None
-                permissions = io.get("x-aor-permissions", []) if self.permissions else None
+                permissions = None
+                if self.permissions and not permission_imports_loaded:
+                    permission_imports_loaded = True
+                    permissions = io.get("x-aor-permissions", [])
+                    self._resources[name]["custom_imports"].extend([
+                        CUSTOM_IMPORTS["empty"],
+                        CUSTOM_IMPORTS["permissions"]
+                    ])
 
                 # Get the correct definition/head_component/component suffix per
                 # verb based on the operation.

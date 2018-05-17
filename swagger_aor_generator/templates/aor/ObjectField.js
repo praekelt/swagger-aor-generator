@@ -13,5 +13,5 @@ const objectToText = ModifiedComponent => props => {
     return <ModifiedComponent {...props} addLabel />;
 }
 
-export const ObjectField = objectToText(TextField);
+export default ObjectField = objectToText(TextField);
 /* End of ObjectField.js */
