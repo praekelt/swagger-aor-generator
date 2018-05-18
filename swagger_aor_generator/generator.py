@@ -174,6 +174,7 @@ class Generator(object):
     def _get_resource_attributes(self, resource_name, properties,
                                  definition, suffix, fields=None):
         attributes = []
+        found_reference = False
         for name, details in properties.items():
             # Check for desired fields and continue if not in there.
             if fields is not None:
@@ -201,6 +202,16 @@ class Generator(object):
             if attribute["type"] in COMPONENT_MAPPING[suffix]:
                 # Check if it is a related field or not
                 if _property.get("x-related-info", None) is not None:
+                    if self.permissions and not found_reference:
+                        found_reference = True
+                        custom_imports = [
+                            custom["name"]
+                            for custom in self._resources[resource_name]["custom_imports"]
+                        ]
+                        if "EmptyField" not in custom_imports:
+                            self._resources[resource_name]["custom_imports"].append(
+                                CUSTOM_IMPORTS["empty"]
+                            )
                     related_info = _property["x-related-info"]
                     model = related_info.get("model", False)
                     # Check if related model is not set to None.
