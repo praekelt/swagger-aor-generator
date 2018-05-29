@@ -93,7 +93,7 @@ CUSTOM_IMPORTS = {
         "directory": "aor-datetime-input"
     },
     "permissions": {
-        "name": "permissionsStore",
+        "name": "PermissionsStore",
         "directory": "../auth/PermissionsStore"
     }
 }
