@@ -403,6 +403,10 @@ The format attribute is REQUIRED however range defaults to false.
 
 * This uses the same input component, however it will be given additional props to use date-time inputs for the from and to range inputs rather than the standard date inputs.
 
+### Relation Filter Dropdowns
+
+If you would like a filter to be a dropdown selection of a related model rather than just a text/number input, add the previously mentioned `x-related-info` to the parameter. The only 2 attributes used with the `x-related-info` on a filter parameter, are `rest_resource_name` and `label`.
+
 *NOTE* If you would like to not include a parameter as a filter, add the following to the parameter definition:
 
 `x-admin-on-rest-exlude: true`

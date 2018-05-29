@@ -24,7 +24,11 @@
       "in": "query",
       "name": "pet_id",
       "required": true,
-      "type": "integer"
+      "type": "integer",
+      "x-related-info": {
+        "rest_resource_name": "pets",
+        "label": "name"
+      }
     },
     "optional_pet_name": {
       "description": "A name for a given pet.",

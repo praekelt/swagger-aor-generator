@@ -11,7 +11,7 @@ import authClient from './auth/authClient';
 import catchAll from './catchAll';
 import Menu from './Menu';
 {% if add_permissions %}
-import permissionsStore from './auth/PermissionsStore';
+import PermissionsStore from './auth/PermissionsStore';
 {% endif %}
 import swaggerRestServer from './swaggerRestServer';
 
@@ -41,7 +41,7 @@ const App = () => (
         {permissions => [
             {% for name, actions in resources.items() %}
             {% if actions.has_methods %}
-            permissionsStore.getResourcePermission('{{ actions.path }}', 'list')
+            PermissionsStore.getResourcePermission('{{ actions.path }}', 'list')
                 ? <Resource
                       name="{{ actions.path }}"
                       {% for action, details in actions.items() %}
@@ -49,7 +49,7 @@ const App = () => (
                       {{ action }}={% if action == "list" or action == "show" %}{% if action == "remove" %}{ Delete }
                       {% else %}{ {{ actions.title }}{{ action|title }} }
                       {% endif %}
-                      {% else %}{permissionsStore.getResourcePermission('{{ actions.path }}', '{{ action }}') ? {% if action == "remove" %}Delete{% else %}{{ actions.title }}{{ action|title }}{% endif %} : null}
+                      {% else %}{PermissionsStore.getResourcePermission('{{ actions.path }}', '{{ action }}') ? {% if action == "remove" %}Delete{% else %}{{ actions.title }}{{ action|title }}{% endif %} : null}
                       {% endif %}
                       {% endif %}
                       {% endfor %} 

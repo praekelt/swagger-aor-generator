@@ -76,7 +76,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% for attribute in entries.fields %}
             {% if attribute.related_component %}
             {% if add_permissions and "Field" in attribute.component %}
-            {permissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
+            {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
                 <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
                 </{{ attribute.component }}>
@@ -94,7 +94,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endfor %}
             {% for inline in entries.inlines %}
             {% if add_permissions %}
-            {permissionsStore.getResourcePermission('{{ inline.reference }}', 'list') ? (
+            {PermissionsStore.getResourcePermission('{{ inline.reference }}', 'list') ? (
                 <{{ inline.component }} label="{{ inline.label }}" reference="{{ inline.reference }}" target="{{ inline.target }}">
                     <Datagrid bodyOptions={ { showRowHover: true } }>
                         {% for attribute in inline.fields %}
@@ -130,7 +130,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% if component == "list" %}
             {% if resource.edit %}
             {% if add_permissions %}
-            {permissionsStore.getResourcePermission('{{ resource.path }}', 'edit') ? <EditButton /> : null}
+            {PermissionsStore.getResourcePermission('{{ resource.path }}', 'edit') ? <EditButton /> : null}
             {% else %}
             <EditButton />
             {% endif %}
@@ -140,7 +140,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% if resource.remove %}
             {% if add_permissions %}
-            {permissionsStore.getResourcePermission('{{ resource.path }}', 'remove') ? <DeleteButton />: null}
+            {PermissionsStore.getResourcePermission('{{ resource.path }}', 'remove') ? <DeleteButton />: null}
             {% else %}
             <DeleteButton />
             {% endif %}

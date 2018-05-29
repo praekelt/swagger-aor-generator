@@ -15,6 +15,7 @@ import {
 import DateRangeInput from '../inputs/DateRangeInput';
 {% endif %}
 {% for filter in filters.filters %}
+{% if not filter.relation %}
 {% if filter.array %}
 
 const parse{{ filter.title }} = value => value.replace(/[^\w]/gi, ',');
@@ -30,12 +31,19 @@ const validate{{ filter.title }} = value => {
     }
 };
 {% endif %}
+{% endif %}
 {% endfor %}
 
 const {{ title }}Filter = props => (
     <Filter {...props}>
         {% for filter in filters.filters %}
+        {% if filter.relation %}
+        <{{ filter.component }} label="{{ filter.label }}" source="{{ filter.source}}" reference="{{ filter.relation.resource }}" allowEmpty>
+            <{{ filter.relation.component }}{% if filter.relation.text %} optionText="{{ filter.relation.text }}"{% endif %} />
+        </{{ filter.component }}>
+        {% else %}
         <{{ filter.component }} label="{{ filter.label }}" source="{{ filter.source }}"{% if filter.array %} parse={parse{{ filter.title }}}{% if filter.array == "integer" %} validate={validate{{ filter.title }}}{% endif %}{% endif %}{% if filter.props %}{% for name, value in filter.props.items() %} {{ name }}{% if value %}={{ value }}{% endif %}{% endfor %}{% endif %} />
+        {% endif %}
         {% endfor %}
     </Filter>
 );

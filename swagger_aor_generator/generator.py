@@ -194,7 +194,8 @@ class Generator(object):
             # Add DisabledInput to Imports if read_only is true.
             if attribute["read_only"] and "DisabledInput" \
                     not in self._resources[resource_name]["imports"]:
-                self._resources[resource_name]["imports"].append("DisabledInput")
+                self._resources[resource_name]["imports"].append(
+                    "DisabledInput")
 
             # Based on the type/format combination get the correct
             # AOR component to use.
@@ -290,13 +291,15 @@ class Generator(object):
                 attributes.append(attribute)
             # Check for custom import types here.
             _type = "{}-{}".format(attribute["type"], suffix.lower())
-            _format = "{}-{}".format(_property.get("format", ""), suffix.lower())
+            _format = "{}-{}".format(_property.get("format",
+                                                   ""), suffix.lower())
             if _type in CUSTOM_IMPORTS or _format in CUSTOM_IMPORTS:
                 custom_imports = [
                     custom["name"]
                     for custom in self._resources[resource_name]["custom_imports"]
-                ] 
-                _import = CUSTOM_IMPORTS.get(_format) or CUSTOM_IMPORTS.get(_type)
+                ]
+                _import = CUSTOM_IMPORTS.get(
+                    _format) or CUSTOM_IMPORTS.get(_type)
                 if _import["name"] not in custom_imports:
                     self._resources[resource_name]["custom_imports"].append(
                         _import
@@ -409,7 +412,8 @@ class Generator(object):
 
                 definition = None
                 head_component = None
-                permissions = io.get("x-aor-permissions", []) if self.permissions else None
+                permissions = io.get("x-aor-permissions",
+                                     []) if self.permissions else None
 
                 if not permission_imports_loaded and self.permissions:
                     permission_imports_loaded = True
@@ -430,7 +434,8 @@ class Generator(object):
                     # Add show component imports
                     if "Show" not in self._resources[name]["imports"]:
                         self._resources[name]["imports"].append("Show")
-                        self._resources[name]["imports"].append("SimpleShowLayout")
+                        self._resources[name]["imports"].append(
+                            "SimpleShowLayout")
                 elif "list" in operation_id:
                     definition, title = self._get_definition_from_ref(
                         definition=io["responses"]["200"]["schema"]["items"]
@@ -457,13 +462,25 @@ class Generator(object):
                                 and not param.get("x-admin-on-rest-exclude", False):
                             # Get component based on the explicit declaration or just the type.
                             declared_input = param.get("x-aor-filter", None)
+                            related_input = param.get("x-related-info", None)
                             _type = param["type"]
+                            relation = None
                             if declared_input:
-                                _range = "-range" if declared_input.get("range", False) else ""
+                                _range = "-range" if declared_input.get(
+                                    "range", False) else ""
                                 _type = "{_type}{_range}".format(
                                     _type=declared_input["format"],
                                     _range=_range
                                 )
+                            elif related_input:
+                                _type = "relation"
+                                relation = {
+                                    "component": COMPONENT_MAPPING["Input"]["enum"],
+                                    "resource": related_input["rest_resource_name"],
+                                    "text": related_input.get("label", None)
+                                }
+                                if relation["component"] not in filter_imports:
+                                    filter_imports.append(relation["component"])
                             component = COMPONENT_MAPPING["Input"][_type]
                             # Add props if needed.
                             props = None
@@ -489,6 +506,7 @@ class Generator(object):
                                 "label": label,
                                 "title": label.replace(" ", ""),
                                 "component": component,
+                                "relation": relation,
                                 "props": props,
                                 "array": array_validation
                             })
@@ -582,7 +600,8 @@ class Generator(object):
         for name, resource in self._resources.items():
             title = resource.get("title", None)
             if title:
-                click.secho("Generating {}.js file...".format(title), fg="green")
+                click.secho("Generating {}.js file...".format(
+                    title), fg="green")
                 with open(os.path.join(resource_dir, "{}.js".format(title)), "w") as f:
                     data = self.generate_js_file(
                         filename="Resource.js",
@@ -604,7 +623,8 @@ class Generator(object):
             if resource.get("filters", None) is not None:
                 title = resource.get("title", None)
                 if title:
-                    click.secho("Generating {}Filter.js file...".format(title), fg="green")
+                    click.secho("Generating {}Filter.js file...".format(
+                        title), fg="green")
                     with open(os.path.join(filter_dir, "{}Filter.js".format(title)), "w") as f:
                         data = self.generate_js_file(
                             filename="Filters.js",
