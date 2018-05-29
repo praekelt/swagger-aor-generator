@@ -68,7 +68,7 @@ class PermissionsStore {
         return false;
     }
     manyResourcePermissions(resourcePermissions) {
-        return Object.entries(resourcePermissions).every(
+        return resourcePermissions.every(
             ([resource, permission]) => {
                 return this.getResourcePermission(resource, permission);
             }
