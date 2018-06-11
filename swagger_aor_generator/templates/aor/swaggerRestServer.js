@@ -43,12 +43,7 @@ const FILTER_LENGTHS = {
  * @param {Object} params The REST request params, depending on the type
  * @returns {Object} { url, options } The HTTP request parameters
  */
-export const convertRESTRequestToHTTP = ({
-    apiUrl,
-    type,
-    resource,
-    params
-}) => {
+export const convertRESTRequestToHTTP = ({ apiUrl, type, resource, params }) => {
     let url = '';
     const options = {};
     const query = {};
@@ -156,42 +151,37 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
                       id: `${keys.map(key => res[key]).join('/')}`
                   }))
                 : pk
-                    ? json.map(
-                          res =>
-                              res.hasOwnProperty('id')
-                                  ? res
-                                  : { ...res, id: res[pk] }
-                      )
-                    : json;
-            return {
-                data: data,
-                total: parseInt(headers.get('x-total-count'), 10)
-            };
-        case GET_MANY_REFERENCE:
-            if (!headers.has('x-total-count')) {
-                throw new Error(
-                    'The X-Total-Count header is missing in the HTTP Response. The jsonServer REST client expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare X-Total-Count in the Access-Control-Expose-Headers header?'
-                );
+                ? json.map(res => (res.hasOwnProperty('id') ? res : { ...res, id: res[pk] }))
+                : json;
+        return {
+            data: data,
+            total: parseInt(headers.get('x-total-count'), 10)
+        };
+    case GET_MANY_REFERENCE:
+        if (!headers.has('x-total-count')) {
+            throw new Error(
+                'The X-Total-Count header is missing in the HTTP Response. The jsonServer REST client expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare X-Total-Count in the Access-Control-Expose-Headers header?'
+            );
+        }
+        data = keys
+            ? json.map(res => ({
+                  ...res,
+                  id: `${keys.map(key => res[key]).join('/')}`
+              }))
+            : pk
+                ? json.map(res => (res.hasOwnProperty('id') ? res : { ...res, id: res[pk] }))
+                : json;
+        return {
+            data: data,
+            total: parseInt(headers.get('x-total-count'), 10)
+        };
+    case CREATE:
+        return {
+            data: {
+                ...params.data,
+                id: keys ? keys.map(key => json[key]).join('/') : pk ? json[pk] : json.id
             }
-            data = keys
-                ? json.map(res => ({
-                      ...res,
-                      id: `${keys.map(key => res[key]).join('/')}`
-                  }))
-                : pk
-                    ? json.map(
-                          res =>
-                              res.hasOwnProperty('id')
-                                  ? res
-                                  : { ...res, id: res[pk] }
-                      )
-                    : json;
-            return {
-                data: data,
-                total: parseInt(headers.get('x-total-count'), 10)
-            };
-        case CREATE:
-            return { data: { ...params.data, id: pk ? json[pk] : json.id } };
+        };
         default:
             return { data: json ? json : {} };
     }
