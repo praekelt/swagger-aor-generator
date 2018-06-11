@@ -13,7 +13,7 @@ import Menu from './Menu';
 {% if add_permissions %}
 import PermissionsStore from './auth/PermissionsStore';
 {% endif %}
-import swaggerRestServer from './swaggerRestServer';
+import swaggerRestServer from './restClient';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}

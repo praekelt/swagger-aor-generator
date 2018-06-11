@@ -22,7 +22,19 @@ SPEC_JSON = "json"
 SPEC_YAML = "yaml"
 SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
 
-BACKEND_CHOICES = ["aor"]
+BACKEND_CHOICES = ["aor", "ra"]
+
+# File name mapping for versions.
+FILENAME_MAPPING = {
+    "aor": {
+        "main": "App",
+        "menu": "Menu",
+    },
+    "ra": {
+        "main": "ReactAdmin",
+        "menu": None,
+    }
+}
 
 # Component Mapping for swagger types to AOR components
 COMPONENT_MAPPING = {
@@ -73,10 +85,13 @@ OPERATION_SUFFIXES = ["list", "read", "create", "update", "delete"]
 SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
 
 ADDITIONAL_FILES = {
-    "root": ["utils.js", "catchAll.js"],
-    "auth": ["authClient.js"],
-    "fields": ["ObjectField.js", "EmptyField.js"],
-    "inputs": ["DateRangeInput.js"]
+    "aor": {
+        "root": ["utils.js", "catchAll.js"],
+        "auth": ["authClient.js"],
+        "fields": ["ObjectField.js", "EmptyField.js"],
+        "inputs": ["DateRangeInput.js"]
+    },
+    "ra": {}
 }
 
 CUSTOM_IMPORTS = {
@@ -101,20 +116,22 @@ CUSTOM_IMPORTS = {
 CUSTOM_COMPONENTS = ["ObjectField", "EmptyField", "DateTimeInput"]
 
 
-def render_to_string(filename, context):
+def render_to_string(filename, context, backend):
     # type: (str, Dict) -> str
     """
     Render a template using the specified context
     :param filename: The template name
     :param context: The data to use when rendering the template
+    :param backend: The backend templates to use.
     :return: The rendered template as a string
     """
-    template_directory = "./swagger_aor_generator/templates/aor"
+    template_directory = "./swagger_aor_generator/templates/{}".format(backend)
     loaders = [jinja2.FileSystemLoader(template_directory)]
     try:
         import swagger_aor_generator
         loaders.append(
-            jinja2.PackageLoader("swagger_aor_generator", "templates/aor")
+            jinja2.PackageLoader(
+                "swagger_aor_generator", "templates/{}".format(backend))
         )
     except ImportError:
         pass
@@ -128,10 +145,12 @@ def render_to_string(filename, context):
 
 class Generator(object):
 
-    def __init__(self, output_dir, module_name=DEFAULT_MODULE, verbose=False,
+    def __init__(self, output_dir, module_name=DEFAULT_MODULE,
+                 admin_version="aor", verbose=False,
                  rest_server_url=None, permissions=False):
         self.parser = None
         self.module_name = module_name
+        self.admin_version = admin_version
         self._resources = None
         self.verbose = verbose
         self.output_dir = output_dir
@@ -549,50 +568,64 @@ class Generator(object):
                         permissions=permissions
                     )
 
-    @staticmethod
-    def generate_js_file(filename, context):
+    def generate_js_file(self, filename, context):
         """
         Generate a js file from the given specification.
         :param filename: The name of the template file.
         :param context: Context to be passed.
         :return: str
         """
-        return render_to_string(filename, context)
+        return render_to_string(filename, context, self.admin_version)
 
-    @staticmethod
-    def add_additional_file(filename):
+    def add_additional_file(self, filename):
         """
         Add an additional file, that does not require context,
         to the generated admin.
         :return: str
         """
-        return render_to_string(filename, {})
+        return render_to_string(filename, {}, self.admin_version)
 
-    def aor_generation(self):
-        click.secho("Generating App.js component file...", fg="green")
-        with open(os.path.join(self.output_dir, "App.js"), "w") as f:
+    def create_and_generate_file(self, dir, filename, context, source=None):
+        """
+        Create a file of the given name and context.
+        :param dir: The output directory.
+        :param filename: The name of the file to be created.
+        :param context: The context for jinja.
+        :param source: Alternative source file for the template.
+        """
+        click.secho("Generating {}.js file...".format(filename), fg="green")
+        with open(os.path.join(dir, "{}.js".format(
+                filename)), "w") as f:
             data = self.generate_js_file(
-                filename="App.js",
-                context={
-                    "title": self.module_name,
-                    "rest_server_url": self.rest_server_url,
-                    "resources": self._resources,
-                    "supported_components": SUPPORTED_COMPONENTS,
-                    "add_permissions": self.permissions
-                })
+                filename="{}.js".format(source or filename),
+                context=context)
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Generating Menu.js component file...", fg="green")
-        with open(os.path.join(self.output_dir, "Menu.js"), "w") as f:
-            data = self.generate_js_file(
-                filename="Menu.js",
+
+    def admin_generation(self):
+        click.secho("Generating main JS component file...", fg="green")
+        main_file = FILENAME_MAPPING[self.admin_version]["main"]
+        self.create_and_generate_file(
+            dir=self.output_dir,
+            filename=main_file,
+            context={
+                "title": self.module_name,
+                "rest_server_url": self.rest_server_url,
+                "resources": self._resources,
+                "supported_components": SUPPORTED_COMPONENTS,
+                "add_permissions": self.permissions
+            }
+        )
+        menu_file = FILENAME_MAPPING[self.admin_version]["menu"]
+        if menu_file:
+            self.create_and_generate_file(
+                dir=self.output_dir,
+                filename=menu_file,
                 context={
                     "resources": self._resources
-                })
-            f.write(data)
-            if self.verbose:
-                print(data)
+                }
+            )
         click.secho("Generating resource component files...", fg="blue")
         resource_dir = self.output_dir + "/resources"
         if not os.path.exists(resource_dir):
@@ -600,21 +633,17 @@ class Generator(object):
         for name, resource in self._resources.items():
             title = resource.get("title", None)
             if title:
-                click.secho("Generating {}.js file...".format(
-                    title), fg="green")
-                with open(os.path.join(resource_dir, "{}.js".format(title)), "w") as f:
-                    data = self.generate_js_file(
-                        filename="Resource.js",
-                        context={
-                            "name": title,
-                            "resource": resource,
-                            "supported_components": SUPPORTED_COMPONENTS,
-                            "add_permissions": self.permissions
-                        }
-                    )
-                    f.write(data)
-                    if self.verbose:
-                        print(data)
+                self.create_and_generate_file(
+                    dir=resource_dir,
+                    filename=title,
+                    context={
+                        "name": title,
+                        "resource": resource,
+                        "supported_components": SUPPORTED_COMPONENTS,
+                        "add_permissions": self.permissions
+                    },
+                    source="Resource"
+                )
         click.secho("Generating Filter files for resources...", fg="blue")
         filter_dir = self.output_dir + "/filters"
         if not os.path.exists(filter_dir):
@@ -623,46 +652,40 @@ class Generator(object):
             if resource.get("filters", None) is not None:
                 title = resource.get("title", None)
                 if title:
-                    click.secho("Generating {}Filter.js file...".format(
-                        title), fg="green")
-                    with open(os.path.join(filter_dir, "{}Filter.js".format(title)), "w") as f:
-                        data = self.generate_js_file(
-                            filename="Filters.js",
-                            context={
-                                "title": title,
-                                "filters": resource["filters"]
-                            })
-                        f.write(data)
-                        if self.verbose:
-                            print(data)
-        click.secho("Adding basic swagger rest server file...", fg="cyan")
-        with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
-            data = self.generate_js_file(
-                filename="swaggerRestServer.js",
-                context={
-                    "resources": self._resources
-                }
-            )
-            f.write(data)
-            if self.verbose:
-                print(data)
+                    filter_file = "{}Filter.js".format(title)
+                    self.create_and_generate_file(
+                        dir=filter_dir,
+                        filename=filter_file,
+                        context={
+                            "title": title,
+                            "filters": resource["filters"]
+                        },
+                        source="Filters"
+                    )
+        click.secho("Adding basic rest client file...", fg="cyan")
+        self.create_and_generate_file(
+            dir=self.output_dir,
+            filename="restClient",
+            context={
+                "resources": self._resources
+            }
+        )
         if self.permissions:
-            path_dir = self.output_dir + "/auth"
-            if not os.path.exists(path_dir):
-                os.makedirs(path_dir)
-            with open(os.path.join(path_dir, "PermissionsStore.js"), "w") as f:
-                data = self.generate_js_file(
-                    filename="PermissionsStore.js",
+            permissions_file = FILENAME_MAPPING[self.admin_version]["permissions"]
+            if permissions_file:
+                path_dir = self.output_dir + "/auth"
+                if not os.path.exists(path_dir):
+                    os.makedirs(path_dir)
+                self.create_and_generate_file(
+                    dir=path_dir,
+                    filename=permissions_file,
                     context={
                         "resources": self._resources,
                         "supported_components": SUPPORTED_COMPONENTS
                     }
                 )
-                f.write(data)
-                if self.verbose:
-                    print(data)
         # Generate additional Files
-        for _dir, files in ADDITIONAL_FILES.items():
+        for _dir, files in ADDITIONAL_FILES[self.admin_version].items():
             if _dir != "root":
                 path_dir = "{}/{}".format(self.output_dir, _dir)
                 if not os.path.exists(path_dir):
@@ -680,6 +703,7 @@ class Generator(object):
 
 @click.command()
 @click.argument("specification_path", type=click.Path(dir_okay=False, exists=True))
+@click.argument("admin_version", type=click.Choice(BACKEND_CHOICES))
 @click.option("--spec-format", type=click.Choice(SPEC_CHOICES))
 @click.option("--verbose/--no-verbose", default=False)
 @click.option("--output-dir", type=click.Path(file_okay=False, exists=True,
@@ -693,17 +717,17 @@ class Generator(object):
               help="Use a desired rest server URL rather than "
                    "'http://localhost:8000/api/v1'")
 @click.option("--permissions/--no-permissions", default=False)
-def main(specification_path, spec_format, verbose, output_dir, module_name,
-         rest_server_url, permissions):
+def main(specification_path, admin_version, spec_format, verbose,
+         output_dir, module_name, rest_server_url, permissions):
 
     generator = Generator(
-        output_dir, module_name=module_name,
+        output_dir, module_name=module_name, admin_version=admin_version,
         verbose=verbose, rest_server_url=rest_server_url, permissions=permissions
     )
     try:
         click.secho("Loading specification file...", fg="green")
         generator.load_specification(specification_path, spec_format)
-        generator.aor_generation()
+        generator.admin_generation()
         click.secho("Done.", fg="green")
     except Exception as e:
         click.secho(str(e), fg="red")

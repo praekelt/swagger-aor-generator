@@ -7,7 +7,7 @@ In particular, the following files are currently generated:
 * `App.js`, The main App file containing your Admin component,
 * Resource JS files, A resource file is generated for each resource found and placed in `resources`,
 * Filter JS files, For each resource with any filters found a filter file will be generated and placed in `filters`,
-* `swaggerRestServer.js`, a swagger rest client included with the generated files (use if needed),
+* `restClient.js`, a swagger rest client included with the generated files (use if needed),
 * `authClient.js`, a basic Auth Client included in the generation.
 * `ObjectField.js`, a common custom field type for object types, included if needed.
 
@@ -383,7 +383,7 @@ List filters are all generated in and additional file `Filters.js`. In order to 
 ```
 
 Here we have one parameter named `pet_id`. This parameter is given `in` the `query`. This will generate a filter component for Pet list with a single filter option, many can be added to the parameters for more filter options.
-The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `swaggerRestServer.js` to only query when the minimum length of input has been typed in that filter.
+The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `restClient.js` to only query when the minimum length of input has been typed in that filter.
 
 *NOTE*: Array filters are handled however come automatically with a CSV format parser on the TextField input, and when the items are labeld as integer type, a validation on the input is given. The text field parsing will automatically turn all special characters to `,` in order to follow the CSV input requirement.
 
@@ -455,6 +455,6 @@ If the user has the permissions `["owner:read"]` then the above flag will be `fa
 ## TODOS (What would be cool as well)
 
 * Fix up templates folder/file organization, thus resulting in some minor code changes. (Neatening up).
-* Update swaggerRestServer.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
+* Update restClient.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
 * Add more range based filter types (like integer/number range).
 * Template render neatening always needs work...

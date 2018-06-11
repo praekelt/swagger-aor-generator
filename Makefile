@@ -15,14 +15,17 @@ clean-virtualenv:
 test:
 	$(VENV)/bin/nosetests --verbose
 
-demo:
+demo-aor:
 	mkdir demo
-	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1"
+	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json aor --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1"
 
-permissions-demo:
+permissions-demo-aor:
 	mkdir demo
-	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1" --permissions
+	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json aor --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1" --permissions
 
+demo-ra:
+	mkdir demo
+	$(PYTHON) swagger_aor_generator/generator.py tests/resources/petstore-aor.json ra --output-dir=demo --module-name="A Pet Admin" --rest-server-url="localhost:3000/api/v1"
 
 clean-demo:
 	rm -rf demo
