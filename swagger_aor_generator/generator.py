@@ -82,16 +82,22 @@ COMPONENT_SUFFIX = {
 
 OPERATION_SUFFIXES = ["list", "read", "create", "update", "delete"]
 
-SUPPORTED_COMPONENTS = ["list", "show", "create", "edit", "remove"]
+SUPPORTED_COMPONENTS = {
+    "aor": ["list", "show", "create", "edit", "remove"],
+    "ra": ["list", "show", "create", "edit"]
+}
 
 ADDITIONAL_FILES = {
     "aor": {
-        "root": ["utils.js", "catchAll.js"],
+        "root": ["Theme.js", "utils.js", "catchAll.js"],
         "auth": ["authClient.js"],
         "fields": ["ObjectField.js", "EmptyField.js"],
         "inputs": ["DateRangeInput.js"]
     },
-    "ra": {}
+    "ra": {
+        "root": ["Theme.js"],
+        "auth": ["authProvider.js"]
+    }
 }
 
 CUSTOM_IMPORTS = {
@@ -613,7 +619,7 @@ class Generator(object):
                 "title": self.module_name,
                 "rest_server_url": self.rest_server_url,
                 "resources": self._resources,
-                "supported_components": SUPPORTED_COMPONENTS,
+                "supported_components": SUPPORTED_COMPONENTS[self.admin_version],
                 "add_permissions": self.permissions
             }
         )
@@ -639,7 +645,7 @@ class Generator(object):
                     context={
                         "name": title,
                         "resource": resource,
-                        "supported_components": SUPPORTED_COMPONENTS,
+                        "supported_components": SUPPORTED_COMPONENTS[self.admin_version],
                         "add_permissions": self.permissions
                     },
                     source="Resource"
@@ -681,7 +687,7 @@ class Generator(object):
                     filename=permissions_file,
                     context={
                         "resources": self._resources,
-                        "supported_components": SUPPORTED_COMPONENTS
+                        "supported_components": SUPPORTED_COMPONENTS[self.admin_version]
                     }
                 )
         # Generate additional Files

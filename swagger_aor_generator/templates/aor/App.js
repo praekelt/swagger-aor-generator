@@ -3,17 +3,16 @@
  * When regenerated the changes will be lost.
 **/
 import React from 'react';
-import { cyan500, cyan300 } from 'material-ui/styles/colors';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
 
+import { muiTheme } from './Theme';
 import authClient from './auth/authClient';
 import catchAll from './catchAll';
 import Menu from './Menu';
 {% if add_permissions %}
 import PermissionsStore from './auth/PermissionsStore';
 {% endif %}
-import swaggerRestServer from './restClient';
+import restClient from './restClient';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
@@ -32,8 +31,8 @@ const App = () => (
     <Admin
         title="{{ title }}"
         menu={Menu}
-        theme={getMuiTheme(muiTheme)}
-        restClient={swaggerRestServer('{{ rest_server_url }}')}
+        theme={muiTheme}
+        restClient={restClient('{{ rest_server_url }}')}
         authClient={authClient}
         catchAll={catchAll}
     >
