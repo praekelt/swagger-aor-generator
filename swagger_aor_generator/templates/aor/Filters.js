@@ -24,7 +24,7 @@ const parse{{ filter.title }} = value => value.replace(/[^\w]/gi, ',');
 
 const validate{{ filter.title }} = value => {
     if (value) {
-        const valid = value.replace(/[^\w]/gi, ',').split(',').every(item => !isNaN(item))
+        const valid = value.replace(/[^\w]/gi, ',').split(',').every(item => !isNaN(item));
         if (!valid) {
             return "{{ filter.label }} are not all numbers.";
         }

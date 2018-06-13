@@ -27,42 +27,68 @@ BACKEND_CHOICES = ["aor", "ra"]
 # File name mapping for versions.
 FILENAME_MAPPING = {
     "aor": {
-        "main": "App",
-        "menu": "Menu",
+        "main": "App"
     },
     "ra": {
-        "main": "ReactAdmin",
-        "menu": None,
+        "main": "ReactAdmin"
     }
 }
 
 # Component Mapping for swagger types to AOR components
 COMPONENT_MAPPING = {
-    "Field": {
-        "boolean": "BooleanField",
-        "date": "DateField",
-        "date-time": "DateField",
-        "enum": "SelectField",
-        "integer": "NumberField",
-        "many": "ReferenceManyField",
-        "object": "ObjectField",
-        "relation": "ReferenceField",
-        "string": "TextField"
+    "aor": {
+        "Field": {
+            "boolean": "BooleanField",
+            "date": "DateField",
+            "date-time": "DateField",
+            "enum": "SelectField",
+            "integer": "NumberField",
+            "many": "ReferenceManyField",
+            "object": "ObjectField",
+            "relation": "ReferenceField",
+            "string": "TextField"
+        },
+        "Input": {
+            "array": "TextInput",
+            "boolean": "BooleanInput",
+            "date": "DateInput",
+            "date-time": "DateTimeInput",
+            "date-range": "DateRangeInput",
+            "date-time-range": "DateRangeInput",
+            "enum": "SelectInput",
+            "integer": "NumberInput",
+            "many": "ReferenceManyField",
+            "object": "LongTextInput",
+            "relation": "ReferenceInput",
+            "string": "TextInput"
+        }
     },
-    "Input": {
-        "array": "TextInput",
-        "boolean": "BooleanInput",
-        "date": "DateInput",
-        "date-time": "DateTimeInput",
-        "date-range": "DateRangeInput",
-        "date-time-range": "DateRangeInput",
-        "enum": "SelectInput",
-        "integer": "NumberInput",
-        "many": "ReferenceManyField",
-        "object": "LongTextInput",
-        "relation": "ReferenceInput",
-        "string": "TextInput"
+    "ra": {
+        "Field": {
+            "boolean": "BooleanField",
+            "date": "DateField",
+            "date-time": "DateField",
+            "enum": "SelectField",
+            "integer": "NumberField",
+            "many": "ReferenceManyField",
+            "relation": "ReferenceField",
+            "string": "TextField"
+        },
+        "Input": {
+            "array": "TextInput",
+            "boolean": "BooleanInput",
+            "date": "DateInput",
+            "date-time": "DateInput",
+            "date-range": "DateRangeInput",
+            "date-time-range": "DateRangeInput",
+            "enum": "SelectInput",
+            "integer": "NumberInput",
+            "many": "ReferenceManyField",
+            "relation": "ReferenceInput",
+            "string": "TextInput"
+        }
     }
+
 }
 
 PROPS_MAPPING = {
@@ -225,7 +251,7 @@ class Generator(object):
             # Based on the type/format combination get the correct
             # AOR component to use.
             related_field = False
-            if attribute["type"] in COMPONENT_MAPPING[suffix]:
+            if attribute["type"] in COMPONENT_MAPPING[self.admin_version][suffix]:
                 # Check if it is a related field or not
                 if _property.get("x-related-info", None) is not None:
                     if self.permissions and not found_reference:
@@ -271,29 +297,29 @@ class Generator(object):
                 # LongTextFields don't exist
                 # Handle component after figuring out if a related field or not.
                 if not related_field:
-                    if _property.get("format", None) in COMPONENT_MAPPING[suffix]:
+                    if _property.get("format", None) in COMPONENT_MAPPING[self.admin_version][suffix]:
                         # DateTimeField is currently not supported.
                         if suffix == "Field" and _property["format"] == "date-time":
                             _type = "date"
                         else:
                             _type = _property["format"]
                         attribute["component"] = \
-                            COMPONENT_MAPPING[suffix][_type]
+                            COMPONENT_MAPPING[self.admin_version][suffix][_type]
                     else:
                         attribute["component"] = \
-                            COMPONENT_MAPPING[suffix][attribute["type"]]
+                            COMPONENT_MAPPING[self.admin_version][suffix][attribute["type"]]
                 else:
                     attribute["component"] = \
-                        COMPONENT_MAPPING[suffix]["relation"]
+                        COMPONENT_MAPPING[self.admin_version][suffix]["relation"]
                     if suffix != "Input":
                         attribute["related_component"] = \
-                            COMPONENT_MAPPING[suffix][attribute["type"]]
+                            COMPONENT_MAPPING[self.admin_version][suffix][attribute["type"]]
                     else:
                         attribute["related_component"] = "SelectInput"
 
             # Handle an enum possibility
             if _property.get("enum", None) is not None:
-                attribute["component"] = COMPONENT_MAPPING[suffix]["enum"]
+                attribute["component"] = COMPONENT_MAPPING[self.admin_version][suffix]["enum"]
                 # Only add choices if an input
                 if suffix == "Input":
                     attribute["choices"] = _property["enum"]
@@ -380,7 +406,7 @@ class Generator(object):
                         "label": label or model.replace("_", " ").title(),
                         "reference": reference,
                         "target": inline["key"],
-                        "component": COMPONENT_MAPPING[suffix]["many"]
+                        "component": COMPONENT_MAPPING[self.admin_version][suffix]["many"]
                     }
                     # Add ReferenceMany component to imports
                     if many_field["component"] not in \
@@ -483,7 +509,7 @@ class Generator(object):
                         # Filters are only in the query string and their type needs
                         # to be a supported component.
                         if param["in"] == "query" \
-                                and param["type"] in COMPONENT_MAPPING["Input"]\
+                                and param["type"] in COMPONENT_MAPPING[self.admin_version]["Input"]\
                                 and not param.get("x-admin-on-rest-exclude", False):
                             # Get component based on the explicit declaration or just the type.
                             declared_input = param.get("x-aor-filter", None)
@@ -500,13 +526,13 @@ class Generator(object):
                             elif related_input:
                                 _type = "relation"
                                 relation = {
-                                    "component": COMPONENT_MAPPING["Input"]["enum"],
+                                    "component": COMPONENT_MAPPING[self.admin_version]["Input"]["enum"],
                                     "resource": related_input["rest_resource_name"],
                                     "text": related_input.get("label", None)
                                 }
                                 if relation["component"] not in filter_imports:
                                     filter_imports.append(relation["component"])
-                            component = COMPONENT_MAPPING["Input"][_type]
+                            component = COMPONENT_MAPPING[self.admin_version]["Input"][_type]
                             # Add props if needed.
                             props = None
                             if _type in PROPS_MAPPING["Input"]:
@@ -623,15 +649,13 @@ class Generator(object):
                 "add_permissions": self.permissions
             }
         )
-        menu_file = FILENAME_MAPPING[self.admin_version]["menu"]
-        if menu_file:
-            self.create_and_generate_file(
-                dir=self.output_dir,
-                filename=menu_file,
-                context={
-                    "resources": self._resources
-                }
-            )
+        self.create_and_generate_file(
+            dir=self.output_dir,
+            filename="Menu",
+            context={
+                "resources": self._resources
+            }
+        )
         click.secho("Generating resource component files...", fg="blue")
         resource_dir = self.output_dir + "/resources"
         if not os.path.exists(resource_dir):

@@ -41,7 +41,7 @@ const ReactAdmin = () => (
     {% endif %}
     {% endfor %}
     </Admin>
-)
+);
 
 export default App;
 /** End of Generated Code **/

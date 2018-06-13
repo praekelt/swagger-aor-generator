@@ -3,17 +3,11 @@
  * When regenerated the changes will be lost.
  **/
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Field } from 'redux-form';
-import { DateInput } from 'admin-on-rest';
-import DateTimeInput from 'aor-datetime-input';
+import { DateInput } from 'react-admin';
 
 const timezoneOffset = new Date().getTimezoneOffset();
 
-const COMPONENTS = {
-    date: DateInput,
-    datetime: DateTimeInput
-};
 
 class DateRangeInput extends Component {
     constructor(props) {
@@ -22,7 +16,6 @@ class DateRangeInput extends Component {
             from: this.props.input.value.from,
             to: this.props.input.value.to
         };
-        this.component = props.time ? COMPONENTS.datetime : COMPONENTS.date;
         this.handleFromOnChange = this.handleFromOnChange.bind(this);
         this.handleToOnChange = this.handleToOnChange.bind(this);
     }
@@ -59,23 +52,6 @@ class DateRangeInput extends Component {
         return correctDate;
     }
 
-    dateTimeFormatter(value) {
-        // Value recieved is a date object in the DateTimeInput.
-        if (timezoneOffset !== 0 && value) {
-            value = new Date(value);
-            value = new Date(value.valueOf() + timezoneOffset * 60000);
-        }
-        return value;
-    }
-
-    dateTimeParser(value) {
-        // Value recieved is a date object in the DateTimeInput.
-        if (timezoneOffset !== 0 && value) {
-            value = new Date(value.valueOf() - timezoneOffset * 60000);
-        }
-        return value;
-    }
-
     render() {
         const { source, time } = this.props;
         const today = new Date();
@@ -97,31 +73,24 @@ class DateRangeInput extends Component {
             <span>
                 <Field
                     name={`${source}.from`}
-                    component={this.component}
+                    component={DateInput}
                     props={fromProps}
                     label="From"
-                    parse={time ? this.dateTimeParser : this.dateParser}
-                    format={time ? this.dateTimeFormatter : null}
+                    parse={this.dateParser}
                     onChange={this.handleFromOnChange}
                 />
                 <Field
                     name={`${source}.to`}
-                    component={this.component}
+                    component={DateInput}
                     props={toProps}
                     label="To"
-                    parse={time ? this.dateTimeParser : this.dateParser}
-                    format={time ? this.dateTimeFormatter : null}
+                    parse={this.dateParser}
                     onChange={this.handleToOnChange}
                 />
             </span>
         );
     }
 }
-DateRangeInput.propTypes = {
-    time: PropTypes.bool
-};
-DateRangeInput.defaultProps = {
-    time: false
-};
+
 export default DateRangeInput;
 /** End of Generated Code **/
