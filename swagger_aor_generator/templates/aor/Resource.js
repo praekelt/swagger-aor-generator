@@ -21,6 +21,28 @@ import {{ import.name }} from '{{ import.directory }}';
 {% if resource.filters %}
 import {{ resource.title }}Filter from '../filters/{{ resource.title }}Filter';
 {% endif %}
+{% for import in resource.custom_imports %}
+{% if import.name == "DateTimeInput" %}
+const timezoneOffset = new Date().getTimezoneOffset();
+
+const dateTimeFormatter = value => {
+    // Value received is a date object in the DateTimeInput.
+    if (timezoneOffset !== 0 && value) {
+        value = new Date(value);
+        value = new Date(value.valueOf() + timezoneOffset * 60000);
+    }
+    return value;
+};
+
+const dateTimeParser = value => {
+    // Value received is a date object in the DateTimeInput.
+    if (timezoneOffset !== 0 && value) {
+        value = new Date(value.valueOf() - timezoneOffset * 60000);
+    }
+    return value;
+};
+{% endif %}
+{% endfor %}
 
 {% if resource.create %}
 const validationCreate{{ name }} = values => {
@@ -33,7 +55,7 @@ const validationCreate{{ name }} = values => {
     {% endif %}
     {% endfor %}
     return errors;
-}
+};
 
 {% endif %}
 {% if resource.edit %}
@@ -47,7 +69,7 @@ const validationEdit{{ name }} = values => {
     {% endif %}
     {% endfor %}
     return errors;
-}
+};
 
 {% endif %}
 {% for component, entries in resource.items() %}
@@ -89,7 +111,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             </{{ attribute.component }}>
             {% endif %}
             {% else %}
-            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "DateTimeInput" %} format={dateTimeFormatter} parse={dateTimeParser}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
             {% endif %}
             {% endfor %}
             {% for inline in entries.inlines %}
@@ -100,10 +122,10 @@ export const {{ resource.title }}{{ component|title }} = props => (
                         {% for attribute in inline.fields %}
                         {% if attribute.related_component %}
                         <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source="{{ attribute.option_text }}" />
+                            <{{ attribute.related_component }} source="{{ attribute.option_text }}" />
                         </{{ attribute.component }}>
                         {% else %}
-                        <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+                        <{{ attribute.component }} source="{{ attribute.source }}"{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
                         {% endif %}
                         {% endfor %}
                     </Datagrid>
@@ -117,10 +139,10 @@ export const {{ resource.title }}{{ component|title }} = props => (
                     {% for attribute in inline.fields %}
                     {% if attribute.related_component %}
                     <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                        <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source="{{ attribute.option_text }}" />
+                        <{{ attribute.related_component }} source="{{ attribute.option_text }}" />
                     </{{ attribute.component }}>
                     {% else %}
-                    <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+                    <{{ attribute.component }} source="{{ attribute.source }}"{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
                     {% endif %}
                     {% endfor %}
                 </Datagrid>
@@ -148,7 +170,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
     </{{ component|title }}>
-)
+);
 
 {% endif %}
 {% endfor %}

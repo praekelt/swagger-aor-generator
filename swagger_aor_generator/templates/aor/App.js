@@ -74,7 +74,7 @@ const App = () => (
     {% endfor %}
     {% endif %}
     </Admin>
-)
+);
 
 const muiTheme = getMuiTheme({
     palette: {
