@@ -13,7 +13,7 @@ import Menu from './Menu';
 {% if add_permissions %}
 import PermissionsStore from './auth/PermissionsStore';
 {% endif %}
-import swaggerRestServer from './swaggerRestServer';
+import restClient from './restClient';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
@@ -33,7 +33,7 @@ const App = () => (
         title="{{ title }}"
         menu={Menu}
         theme={getMuiTheme(muiTheme)}
-        restClient={swaggerRestServer('{{ rest_server_url }}')}
+        restClient={restClient('{{ rest_server_url }}')}
         authClient={authClient}
         catchAll={catchAll}
     >

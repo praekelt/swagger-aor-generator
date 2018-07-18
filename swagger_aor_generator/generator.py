@@ -636,9 +636,9 @@ class Generator(object):
                         if self.verbose:
                             print(data)
         click.secho("Adding basic swagger rest server file...", fg="cyan")
-        with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
+        with open(os.path.join(self.output_dir, "restClient.js"), "w") as f:
             data = self.generate_js_file(
-                filename="swaggerRestServer.js",
+                filename="restClient.js",
                 context={
                     "resources": self._resources
                 }
