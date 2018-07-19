@@ -96,6 +96,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
     <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}"{% if component == "list" and resource.filters %} filters={<{{ resource.title }}Filter />}{% endif %}>
         <{% if component == "list" %}Datagrid bodyOptions={ { showRowHover: true } }{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validation{{ component|title }}{{ name }}}{% endif %}>
             {% for attribute in entries.fields %}
+            {% if attribute.read_only and component == "create" %}{% else %}
             {% if attribute.related_component %}
             {% if add_permissions and "Field" in attribute.component %}
             {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
@@ -112,6 +113,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% else %}
             <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "DateTimeInput" %} format={dateTimeFormatter} parse={dateTimeParser}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+            {% endif %}
             {% endif %}
             {% endfor %}
             {% for inline in entries.inlines %}
