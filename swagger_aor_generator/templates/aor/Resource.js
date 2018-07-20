@@ -98,7 +98,8 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% for attribute in entries.fields %}
             {% if attribute.read_only and component == "create" %}{% else %}
             {% if attribute.related_component %}
-            {% if add_permissions and "Field" in attribute.component %}
+            {% if add_permissions %}
+            {% if "Field" in attribute.component %}
             {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
                 <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
@@ -106,6 +107,13 @@ export const {{ resource.title }}{{ component|title }} = props => (
             ) : (
                 <EmptyField />
             )}
+            {% else %}
+            {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') && (
+                <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
+                    <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
+                </{{ attribute.component }}>
+            )}
+            {% endif %}
             {% else %}
             <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
                 <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
