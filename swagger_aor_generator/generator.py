@@ -35,7 +35,8 @@ COMPONENT_MAPPING = {
         "many": "ReferenceManyField",
         "object": "ObjectField",
         "relation": "ReferenceField",
-        "string": "TextField"
+        "string": "TextField",
+        "uri": "UrlField"
     },
     "Input": {
         "array": "TextInput",
