@@ -101,7 +101,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% if add_permissions %}
             {% if "Field" in attribute.component %}
             {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
-                <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
+                <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}"{% if component == "list" and not attribute.sortable %} sortable={false}{% endif %}{% if "Field" in attribute.component %} linkType="show"{% else %} perPage={0}{% endif %} allowEmpty>
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
                 </{{ attribute.component }}>
             ) : (
@@ -109,18 +109,18 @@ export const {{ resource.title }}{{ component|title }} = props => (
             )}
             {% else %}
             {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') && (
-                <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
+                <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}"{% if "Field" in attribute.component %} linkType="show"{% else %} perPage={0}{% endif %} allowEmpty>
                     <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
                 </{{ attribute.component }}>
             )}
             {% endif %}
             {% else %}
-            <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% else %}perPage={0} {% endif %}allowEmpty>
+            <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}"{% if component == "list" and not attribute.sortable %} sortable={false}{% endif %}{% if "Field" in attribute.component %} linkType="show"{% else %} perPage={0}{% endif %} allowEmpty>
                 <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} {% if "Input" in attribute.related_component %}optionText={% else %}source={% endif %}"{{ attribute.option_text }}" />
             </{{ attribute.component }}>
             {% endif %}
             {% else %}
-            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "DateTimeInput" %} format={dateTimeFormatter} parse={dateTimeParser}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
+            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if component == "list" and not attribute.sortable %} sortable={false}{% endif %}{% if attribute.choices %} choices={choice{{ component|title }}{{ attribute.source|title }}}{% endif %}{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "DateTimeInput" %} format={dateTimeFormatter} parse={dateTimeParser}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
             {% endif %}
             {% endif %}
             {% endfor %}

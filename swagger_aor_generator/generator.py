@@ -173,7 +173,7 @@ class Generator(object):
             return definition, None
 
     def _get_resource_attributes(self, resource_name, properties,
-                                 definition, suffix, fields=None):
+                                 definition, suffix, fields=None, sortable_fields=[]):
         attributes = []
         found_reference = False
         for name, details in properties.items():
@@ -189,6 +189,7 @@ class Generator(object):
                 "source": name,
                 "type": _property.get("type", None),
                 "required": name in definition.get("required", []),
+                "sortable": name in sortable_fields,
                 "read_only": _property.get("readOnly", False)
                 if suffix == "Input" else False
             }
@@ -313,70 +314,77 @@ class Generator(object):
         self._resources[resource_name][head_component] = {
             "permissions": permissions or []
         }
+        # Get all detail page definitions
+        detail_page_definitions = self.parser.specification.get(
+            "x-detail-page-definitions", {}
+        )
+        resource_details = detail_page_definitions.get(resource_name, {})
+        sortable_fields = resource_details.get("sortable_fields", [])
         suffix = COMPONENT_SUFFIX[head_component]
         properties = definition.get("properties", {})
         resource = self._get_resource_attributes(
             resource_name=resource_name,
             properties=properties,
             definition=definition,
-            suffix=suffix
+            suffix=suffix,
+            sortable_fields=sortable_fields
         )
         # Only add if there is something in resource
         if resource:
             self._resources[resource_name][head_component]["fields"] = resource
 
-        # Check if there are inline models for the given resource.
-        inlines = self.parser.specification.get(
-            "x-detail-page-definitions", None
-        )
+        # Grab inlines
+        inlines = resource_details.get("inlines", [])
         # Inlines are only shown on the Show and Edit components.
-        if inlines is not None and head_component in ["show", "edit"]:
-            if resource_name in inlines:
-                if self.permissions:
-                    custom_imports = [
-                        custom["name"]
-                        for custom in self._resources[resource_name]["custom_imports"]
-                    ]
-                    if "EmptyField" not in custom_imports:
-                        self._resources[resource_name]["custom_imports"].append(
-                            CUSTOM_IMPORTS["empty"]
-                        )
-                self._resources[resource_name][head_component]["inlines"] = []
-                inlines = inlines[resource_name]["inlines"]
-                for inline in inlines:
-                    model = inline["model"]
-                    label = inline.get("label", None)
-                    # If a custom base path has been given.
-                    if inline.get("rest_resource_name", None) is not None:
-                        reference = inline["rest_resource_name"]
-                    else:
-                        reference = words.plural(model.replace("_", ""))
-                    fields = inline.get("fields", None)
-                    many_field = {
-                        "label": label or model.replace("_", " ").title(),
-                        "reference": reference,
-                        "target": inline["key"],
-                        "component": COMPONENT_MAPPING[suffix]["many"]
-                    }
-                    # Add ReferenceMany component to imports
-                    if many_field["component"] not in \
-                            self._resources[resource_name]["imports"]:
-                        self._resources[resource_name]["imports"].append(
-                            many_field["component"]
-                        )
-                    inline_def = \
-                        self.parser.specification["definitions"][inline["model"]]
-                    properties = inline_def.get("properties", {})
-                    many_field["fields"] = self._get_resource_attributes(
-                        resource_name=resource_name,
-                        properties=properties,
-                        definition=inline_def,
-                        suffix="Field",
-                        fields=fields
+        if detail_page_definitions is not None \
+                and resource_name \
+                and head_component in ["show", "edit"]:
+            if self.permissions:
+                custom_imports = [
+                    custom["name"]
+                    for custom in self._resources[resource_name]["custom_imports"]
+                ]
+                if "EmptyField" not in custom_imports:
+                    self._resources[resource_name]["custom_imports"].append(
+                        CUSTOM_IMPORTS["empty"]
                     )
-                    self._resources[resource_name][head_component]["inlines"].append(
-                        many_field
+            self._resources[resource_name][head_component]["inlines"] = []
+
+            for inline in inlines:
+                model = inline["model"]
+                label = inline.get("label", None)
+                # If a custom base path has been given.
+                if inline.get("rest_resource_name", None) is not None:
+                    reference = inline["rest_resource_name"]
+                else:
+                    reference = words.plural(model.replace("_", ""))
+                fields = inline.get("fields", None)
+                many_field = {
+                    "label": label or model.replace("_", " ").title(),
+                    "reference": reference,
+                    "target": inline["key"],
+                    "component": COMPONENT_MAPPING[suffix]["many"]
+                }
+                # Add ReferenceMany component to imports
+                if many_field["component"] not in \
+                        self._resources[resource_name]["imports"]:
+                    self._resources[resource_name]["imports"].append(
+                        many_field["component"]
                     )
+                inline_def = \
+                    self.parser.specification["definitions"][inline["model"]]
+                properties = inline_def.get("properties", {})
+                many_field["fields"] = self._get_resource_attributes(
+                    resource_name=resource_name,
+                    properties=properties,
+                    definition=inline_def,
+                    suffix="Field",
+                    fields=fields
+                )
+                self._resources[resource_name][head_component]["inlines"].append(
+                    many_field
+                )
+
 
     def _make_resource_definitions(self):
         self._resources = {}

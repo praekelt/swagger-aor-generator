@@ -600,6 +600,10 @@
         "name": {
           "type": "string"
         },
+        "info": {
+          "type": "string",
+          "format": "uri"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -617,6 +621,10 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "info": {
+          "type": "string",
+          "format": "uri"
         }
       },
       "required": ["name"]
@@ -752,6 +760,14 @@
             "date_of_birth"
           ]
         }
+      ],
+      "sortable_fields": [
+        "id"
+      ]
+    },
+    "pet": {
+      "sortable_fields": [
+        "id"
       ]
     }
   }

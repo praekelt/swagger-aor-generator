@@ -329,6 +329,37 @@ This will finally generate a `<ReferenceManyField>` with a list of all the relat
 
 *NOTE: The inlines will only be generated on the `Show` and `Edit` components. The Edit inlines will include edit buttons on the right side of an entry.*
 
+### Sortable Fields
+
+All fields in the list views are considered not sortable unless specified in the `x-detail-page-definitions` as such:
+
+```
+"x-detail-page-definitions": {
+  "category": {
+    "inlines": [
+      {
+        "model": "pet",
+        "rest_resource_name": "pets",
+        "label": "Pets",
+        "key": "category_id",
+        "fields": [
+          "name",
+          "date_of_birth"
+        ]
+      }
+    ],
+    "sortable_fields": [
+      "id"
+    ]
+  },
+  "pet": {
+    "sortable_fields": [
+      "id"
+    ]
+  }
+}
+```
+
 ### List Filters
 
 List filters are all generated in and additional file `Filters.js`. In order to generate filters, the path in charge of dictating the list component must contain optional query parameters. These will be noticed by the generator and added to the list components filter props. Taking from the `pet` specification established above we have:
