@@ -131,9 +131,13 @@ export const {{ resource.title }}{{ component|title }} = props => (
                     <Datagrid bodyOptions={ { showRowHover: true } }>
                         {% for attribute in inline.fields %}
                         {% if attribute.related_component %}
-                        <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                            <{{ attribute.related_component }} source="{{ attribute.option_text }}" />
-                        </{{ attribute.component }}>
+                        {PermissionsStore.getResourcePermission('{{ attribute.reference }}', 'list') ? (
+                            <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
+                                <{{ attribute.related_component }} source="{{ attribute.option_text }}" />
+                            </{{ attribute.component }}>
+                        ) : (
+                            <EmptyField />
+                        )}
                         {% else %}
                         <{{ attribute.component }} source="{{ attribute.source }}"{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
                         {% endif %}
