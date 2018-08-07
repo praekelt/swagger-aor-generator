@@ -240,7 +240,7 @@ class Generator(object):
 
                 elif name.endswith("_id"):
                     related_field = True
-                    relation = name.replace("_id", "")
+                    relation = name.replace("_id", "").replace("_", "")
                     attribute["label"] = relation.title()
                     attribute["reference"] = words.plural(relation)
                     attribute["related_field"] = "id"
@@ -384,7 +384,6 @@ class Generator(object):
                 self._resources[resource_name][head_component]["inlines"].append(
                     many_field
                 )
-
 
     def _make_resource_definitions(self):
         self._resources = {}
