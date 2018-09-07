@@ -345,7 +345,8 @@ class Generator(object):
 
         if head_component == "list":
             self._resources[resource_name]["list"]["responsive"] = responsive_obj
-            if "Responsive" not in self._resources[resource_name]["imports"]:
+            if "Responsive" not in self._resources[resource_name]["imports"] \
+                    and responsive_obj:
                 self._resources[resource_name]["imports"].extend(
                     ["Responsive", "SimpleList"]
                 )

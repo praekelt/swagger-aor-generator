@@ -193,8 +193,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% endif %}
             {% endif %}
-        </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
-            {% if entries.responsive %}} />{% endif%}
+        </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>{% if entries.responsive %}} />{% endif%}
     </{{ component|title }}>
 );
 
