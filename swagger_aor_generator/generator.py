@@ -333,6 +333,23 @@ class Generator(object):
         if resource:
             self._resources[resource_name][head_component]["fields"] = resource
 
+        # Grab responsive fields.
+        responsive_fields = resource_details.get("responsive_fields", {})
+        responsive_obj = {}
+
+        for prop, field in responsive_fields.items():
+            responsive_obj[prop] = {
+                "field": field,
+                "title": field.replace("_", " ").title()
+            }
+
+        if head_component == "list":
+            self._resources[resource_name]["list"]["responsive"] = responsive_obj
+            if "Responsive" not in self._resources[resource_name]["imports"]:
+                self._resources[resource_name]["imports"].extend(
+                    ["Responsive", "SimpleList"]
+                )
+
         # Grab inlines
         inlines = resource_details.get("inlines", [])
         # Inlines are only shown on the Show and Edit components.

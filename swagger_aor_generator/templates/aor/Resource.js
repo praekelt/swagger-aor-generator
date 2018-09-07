@@ -94,6 +94,17 @@ const choice{{ component|title }}{{ attribute.source|title }} = [
 {% if component in supported_components and (entries.fields|length > 0 or entries.inlines) %}
 export const {{ resource.title }}{{ component|title }} = props => (
     <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}"{% if component == "list" and resource.filters %} filters={<{{ resource.title }}Filter />}{% endif %}>
+        {% if entries.responsive %}
+        <Responsive
+            small={
+                <SimpleList
+                    {% for prop, details in entries.responsive.items() %}
+                    {{ prop }}Text={record => `{{ details.title }}: ${ record.{{ details.field }} }`}
+                    {% endfor %}
+                />
+            }
+            medium={
+        {% endif %}
         <{% if component == "list" %}Datagrid bodyOptions={ { showRowHover: true } }{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validation{{ component|title }}{{ name }}}{% endif %}>
             {% for attribute in entries.fields %}
             {% if attribute.read_only and component == "create" %}{% else %}
@@ -183,6 +194,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% endif %}
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
+            {% if entries.responsive %}} />{% endif%}
     </{{ component|title }}>
 );
 

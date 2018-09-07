@@ -568,7 +568,13 @@
           "type": "string"
         }
       },
-      "required": ["username", "firstName", "lastName", "email", "password"]
+      "required": [
+        "username",
+        "firstName",
+        "lastName",
+        "email",
+        "password"
+      ]
     },
     "user_update": {
       "properties": {
@@ -588,7 +594,12 @@
           "type": "string"
         }
       },
-      "required": ["username", "firstName", "lastName", "email"]
+      "required": [
+        "username",
+        "firstName",
+        "lastName",
+        "email"
+      ]
     },
     "category": {
       "properties": {
@@ -627,7 +638,9 @@
           "format": "uri"
         }
       },
-      "required": ["name"]
+      "required": [
+        "name"
+      ]
     },
     "pet": {
       "properties": {
@@ -710,7 +723,9 @@
           ]
         }
       },
-      "required": ["name"]
+      "required": [
+        "name"
+      ]
     },
     "pet_update": {
       "properties": {
@@ -768,7 +783,11 @@
     "pet": {
       "sortable_fields": [
         "id"
-      ]
+      ],
+      "responsive_fields": {
+        "primary": "name",
+        "secondary": "status"
+      }
     }
   }
 }
