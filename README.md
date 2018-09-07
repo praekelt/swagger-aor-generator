@@ -7,9 +7,13 @@ In particular, the following files are currently generated:
 * `App.js`, The main App file containing your Admin component,
 * Resource JS files, A resource file is generated for each resource found and placed in `resources`,
 * Filter JS files, For each resource with any filters found a filter file will be generated and placed in `filters`,
-* `swaggerRestServer.js`, a swagger rest client included with the generated files (use if needed),
+* `restClient.js`, a json rest client included with the generated files (use if needed),
 * `authClient.js`, a basic Auth Client included in the generation.
 * `ObjectField.js`, a common custom field type for object types, included if needed.
+
+PLEASE NOTE: This tool will only really help you generate the bulk of your resource and main admin components (which can be tedious and lengthy so it helps quite a bit).
+The rest and utility components and JS are there mainly as placeholders and the entire Generated admin may not function correctly without some knowledge and intervention. Please excuse this, not enough time is available.
+However a tool for `React-Admin` (admin on rest v2) is in the works and will provide more robust placeholder code, as a generator for `React-Admin` is more of a priority.
 
 
 ## Admin On Rest Client Generation
@@ -414,7 +418,7 @@ List filters are all generated in and additional file `Filters.js`. In order to 
 ```
 
 Here we have one parameter named `pet_id`. This parameter is given `in` the `query`. This will generate a filter component for Pet list with a single filter option, many can be added to the parameters for more filter options.
-The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `swaggerRestServer.js` to only query when the minimum length of input has been typed in that filter.
+The filter `type`/`format` is important for the component to be used and maps to the table as given above in the `Definition Configuration` section. Also each query parameter can have a `minLength` attribute which will dictate in the `restClient.js` to only query when the minimum length of input has been typed in that filter.
 
 *NOTE*: Array filters are handled however come automatically with a CSV format parser on the TextField input, and when the items are labeld as integer type, a validation on the input is given. The text field parsing will automatically turn all special characters to `,` in order to follow the CSV input requirement.
 
@@ -483,9 +487,26 @@ If the user has the permissions `["owner:read"]` then the above flag will be `fa
 
 *NOTE*: If an endpoint has no permissions listed, it is assumed that all users have permission to perform API call. 
 
+## Generated code formatting
+
+The generated code will not be pretty due to the templates being quite difficult to keep good formatting.
+Therefore a suggestion would be to add a shell script to run after generating:
+
+```
+#!/bin/bash
+# A script to run prettier on all generated admin js files before melding.
+
+FILES=`find ./{your_generated_directory} -type f -name '*.js'`
+for file in $FILES
+do
+yarn prettier --write --single-quote --tab-width 4 --print-width 100 "$file"
+done
+```
+
+Make sure you have installed the npm package `prettier`.
+
 ## TODOS (What would be cool as well)
 
 * Fix up templates folder/file organization, thus resulting in some minor code changes. (Neatening up).
-* Update swaggerRestServer.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
+* Update restClient.js and authClient.js to work out the box for a standard JSON rest server. (Currently a bit too specific for some projects I used the tool for).
 * Add more range based filter types (like integer/number range).
-* Template render neatening always needs work...
